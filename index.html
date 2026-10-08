@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="KL Video Streaming Platform — Watch trending movies, series, documentaries and more." />
+  <title>KL Video Streaming Platform</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+  <!-- PAGE LOADER -->
+  <div id="page-loader" role="status" aria-label="Loading KL Video Streaming Platform">
+    <div class="loader-logo">
+      <div class="logo-icon" style="width:56px;height:56px;font-size:1.8rem;" aria-hidden="true">▶</div>
+      <div class="loader-logo-text">KL Video<br><span>Streaming Platform</span></div>
+      <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION BAR -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-container">
+
+      <a href="index.html" class="nav-logo" aria-label="KL Video Streaming Platform Home">
+        <div class="logo-icon" aria-hidden="true">▶</div>
+        <span class="logo-text">KL <span>Video</span></span>
+      </a>
+
+      <ul class="nav-links" role="menubar">
+        <li role="none"><a href="index.html"          class="nav-link active" role="menuitem" data-page="home">Home</a></li>
+        <li role="none"><a href="#"                   class="nav-link" role="menuitem" data-page="movies"    data-category="Movies">Movies</a></li>
+        <li role="none"><a href="#"                   class="nav-link" role="menuitem" data-page="series"    data-category="Series">Series</a></li>
+        <li role="none"><a href="#categories-section" class="nav-link" role="menuitem" data-page="categories">Categories</a></li>
+        <li role="none"><a href="#"                   class="nav-link" role="menuitem" data-page="watchlist">Watchlist</a></li>
+        <li role="none"><a href="#"                   class="nav-link" role="menuitem" data-page="history">History</a></li>
+        <li role="none"><a href="pages/profile.html"  class="nav-link" role="menuitem" data-page="profile">Profile</a></li>
+      </ul>
+
+      <div class="nav-right">
+        <!-- Search -->
+        <div class="search-wrapper" id="searchWrapper">
+          <button class="search-toggle-btn" id="searchToggleBtn" aria-label="Toggle search" aria-expanded="false">
+            <i class="fas fa-search" aria-hidden="true"></i>
+          </button>
+          <div class="search-box" id="searchBox" role="search">
+            <input type="search" id="searchInput" class="search-input"
+              placeholder="Search videos, categories..." aria-label="Search videos" autocomplete="off" />
+            <button class="search-clear-btn" id="searchClearBtn" aria-label="Clear search">
+              <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Auth buttons (logged-out state) -->
+        <div id="authButtons">
+          <a href="pages/login.html"    class="btn-login"  aria-label="Login">Login</a>
+          <a href="pages/register.html" class="btn-signup" aria-label="Sign up">Sign Up</a>
+        </div>
+
+        <!-- User menu (logged-in state) -->
+        <div class="user-menu hidden" id="userMenu">
+          <button class="user-avatar-btn" id="userAvatarBtn" aria-label="User menu" aria-expanded="false" aria-haspopup="true">
+            <span id="userAvatarInitial">U</span>
+          </button>
+          <div class="user-dropdown" id="userDropdown" role="menu">
+            <div class="dropdown-user-info">
+              <div class="dropdown-user-name"  id="dropdownUserName">User</div>
+              <div class="dropdown-user-email" id="dropdownUserEmail">user@example.com</div>
+            </div>
+            <a href="pages/profile.html" class="dropdown-item" role="menuitem">
+              <i class="fas fa-user" aria-hidden="true"></i> Profile
+            </a>
+            <a href="#" class="dropdown-item" role="menuitem" data-page="watchlist">
+              <i class="fas fa-bookmark" aria-hidden="true"></i> Watchlist
+            </a>
+            <a href="#" class="dropdown-item" role="menuitem" data-page="history">
+              <i class="fas fa-history" aria-hidden="true"></i> History
+            </a>
+            <div class="dropdown-item logout" id="logoutBtn" role="menuitem" tabindex="0">
+              <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
+            </div>
+          </div>
+        </div>
+
+        <!-- Hamburger -->
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle mobile menu"
+          aria-expanded="false" aria-controls="mobileNav">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MOBILE NAVIGATION DRAWER -->
+  <div class="mobile-nav" id="mobileNav" aria-hidden="true">
+    <div class="mobile-search-wrapper" role="search">
+      <i class="fas fa-search" style="color:var(--text-muted)" aria-hidden="true"></i>
+      <input type="search" id="mobileSearchInput" placeholder="Search videos..."
+        aria-label="Mobile search" autocomplete="off" />
+    </div>
+    <ul class="mobile-nav-links">
+      <li><a href="index.html"          class="mobile-nav-link active" data-page="home">🏠 Home</a></li>
+      <li><a href="#"                   class="mobile-nav-link" data-page="movies"    data-category="Movies">🎬 Movies</a></li>
+      <li><a href="#"                   class="mobile-nav-link" data-page="series"    data-category="Series">📺 Series</a></li>
+      <li><a href="#categories-section" class="mobile-nav-link">🗂️ Categories</a></li>
+      <li><a href="#"                   class="mobile-nav-link" data-page="watchlist">🔖 Watchlist</a></li>
+      <li><a href="#"                   class="mobile-nav-link" data-page="history">🕐 History</a></li>
+      <li><a href="pages/profile.html"  class="mobile-nav-link">👤 Profile</a></li>
+    </ul>
+    <div class="mobile-nav-auth" id="mobileAuthButtons">
+      <a href="pages/login.html"    class="btn-login">Login</a>
+      <a href="pages/register.html" class="btn-signup">Sign Up</a>
+    </div>
+    <div class="mobile-nav-auth hidden" id="mobileUserInfo">
+      <span id="mobileUserName" style="font-size:.9rem;color:var(--text-secondary)">Hello, User</span>
+      <button class="btn-login" id="mobileLogoutBtn" style="margin-left:auto">Logout</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="page-wrapper" id="mainContent">
+
+    <!-- ── HOME VIEW ── -->
+    <div id="homeView">
+
+      <!-- Hero -->
+      <section class="hero" id="heroSection" aria-label="Featured video">
+        <div class="hero-bg" id="heroBg" role="img" aria-label="Featured video background"></div>
+        <div class="hero-gradient" aria-hidden="true"></div>
+        <div class="hero-content">
+          <div class="hero-badge"><i class="fas fa-fire" aria-hidden="true"></i> Featured</div>
+          <h1 class="hero-title" id="heroTitle">Loading...</h1>
+          <div class="hero-meta">
+            <span class="hero-meta-item"><i class="fas fa-star star" aria-hidden="true"></i><span id="heroRating">–</span></span>
+            <span class="hero-meta-item"><i class="fas fa-clock" aria-hidden="true"></i><span id="heroDuration">–</span></span>
+            <span class="hero-meta-item"><i class="fas fa-calendar" aria-hidden="true"></i><span id="heroYear">–</span></span>
+            <span class="hero-meta-item"><i class="fas fa-tag" aria-hidden="true"></i><span id="heroCategory">–</span></span>
+          </div>
+          <p class="hero-description" id="heroDescription">–</p>
+          <div class="hero-actions">
+            <button class="btn-primary" id="heroWatchBtn"><i class="fas fa-play" aria-hidden="true"></i> Watch Now</button>
+            <button class="btn-secondary" id="heroWatchlistBtn"><i class="fas fa-plus" aria-hidden="true"></i> Watchlist</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Trending -->
+      <section class="section" id="trendingSection">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">🔥 Trending Now</h2>
+            <button class="see-all-btn" data-filter-section="trending">See All</button>
+          </div>
+          <div class="video-grid" id="trendingGrid" aria-label="Trending videos"></div>
+        </div>
+      </section>
+
+      <!-- Popular -->
+      <section class="section" id="popularSection" style="padding-top:0">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">👑 Most Popular</h2>
+            <button class="see-all-btn" data-filter-section="popular">See All</button>
+          </div>
+          <div class="video-grid" id="popularGrid" aria-label="Popular videos"></div>
+        </div>
+      </section>
+
+      <!-- Recommended for You (per-user, hidden until logged in) -->
+      <section class="section" id="recommendedSection" style="padding-top:0;display:none">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">✨ Recommended for You</h2>
+            <span style="font-size:.8rem;color:var(--text-muted);">Based on your watch history</span>
+          </div>
+          <div class="video-grid" id="recommendedGrid" aria-label="Recommended videos"></div>
+        </div>
+      </section>
+
+      <!-- Recently Added -->
+      <section class="section" id="recentSection" style="padding-top:0">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">🆕 Recently Added</h2>
+            <button class="see-all-btn" data-filter-section="recent">See All</button>
+          </div>
+          <div class="video-grid" id="recentGrid" aria-label="Recently added videos"></div>
+        </div>
+      </section>
+
+      <!-- Categories -->
+      <section class="section" id="categories-section" style="padding-top:0">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">🗂️ Browse Categories</h2>
+          </div>
+          <div class="categories-grid" id="categoriesGrid" aria-label="Video categories"></div>
+        </div>
+      </section>
+
+    </div><!-- /#homeView -->
+
+    <!-- ── BROWSE VIEW ── -->
+    <div id="browseView" class="hidden">
+      <div class="container">
+        <div class="page-section">
+          <h2 class="page-section-title" id="browseTitle">Browse</h2>
+          <p style="color:var(--text-muted);margin-bottom:24px" id="browseSubtitle"></p>
+          <div class="category-filter-bar" id="categoryFilterBar" role="tablist" aria-label="Filter by category"></div>
+          <div class="video-grid" id="browseGrid" aria-label="Browse videos"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SEARCH VIEW ── -->
+    <div id="searchView" class="hidden">
+      <div class="container search-results-section">
+        <p class="search-query-label">Results for: <span id="searchQueryLabel"></span></p>
+        <div class="video-grid" id="searchGrid" aria-label="Search results"></div>
+        <div class="no-results hidden" id="noResults">
+          <div class="no-results-icon" aria-hidden="true">🔍</div>
+          <h3>No videos found</h3>
+          <p>Try a different keyword or browse our categories.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── WATCHLIST VIEW ── -->
+    <div id="watchlistView" class="hidden">
+      <div class="container">
+        <div class="page-section">
+          <div class="page-section-header">
+            <h2 class="page-section-title">🔖 My Watchlist</h2>
+            <button class="clear-btn" id="clearWatchlistBtn"><i class="fas fa-trash" aria-hidden="true"></i> Clear All</button>
+          </div>
+          <div class="video-grid" id="watchlistGrid" aria-label="My watchlist"></div>
+          <div class="empty-state hidden" id="watchlistEmpty">
+            <div class="empty-icon" aria-hidden="true">🔖</div>
+            <h3>Your Watchlist is Empty</h3>
+            <p>Add videos by clicking the <strong>+</strong> icon on any video card.</p>
+            <button class="btn-primary" onclick="showView('home')" style="margin-top:16px">
+              <i class="fas fa-home" aria-hidden="true"></i> Browse Videos
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HISTORY VIEW ── -->
+    <div id="historyView" class="hidden">
+      <div class="container">
+        <div class="page-section">
+          <div class="page-section-header">
+            <h2 class="page-section-title">🕐 Watch History</h2>
+            <button class="clear-btn" id="clearHistoryBtn"><i class="fas fa-trash" aria-hidden="true"></i> Clear History</button>
+          </div>
+          <div class="video-grid" id="historyGrid" aria-label="Watch history"></div>
+          <div class="empty-state hidden" id="historyEmpty">
+            <div class="empty-icon" aria-hidden="true">🕐</div>
+            <h3>No Watch History</h3>
+            <p>Videos you watch will appear here.</p>
+            <button class="btn-primary" onclick="showView('home')" style="margin-top:16px">
+              <i class="fas fa-home" aria-hidden="true"></i> Start Watching
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer role="contentinfo">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-logo" style="justify-content:flex-start">
+            <div class="logo-icon" style="width:30px;height:30px;font-size:1rem;" aria-hidden="true">▶</div>
+            <span class="logo-text" style="font-size:1rem;">KL <span>Video</span></span>
+          </a>
+          <p>Your ultimate video streaming destination. Watch movies, series, documentaries, sports and more — all in one place.</p>
+        </div>
+        <div>
+          <h3 class="footer-heading">Navigate</h3>
+          <ul class="footer-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#" data-page="movies">Movies</a></li>
+            <li><a href="#" data-page="watchlist">Watchlist</a></li>
+            <li><a href="#" data-page="history">History</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="footer-heading">Categories</h3>
+          <ul class="footer-links">
+            <li><a href="#" data-category-link="Action">Action</a></li>
+            <li><a href="#" data-category-link="Drama">Drama</a></li>
+            <li><a href="#" data-category-link="Documentary">Documentary</a></li>
+            <li><a href="#" data-category-link="Sports">Sports</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="footer-heading">Account</h3>
+          <ul class="footer-links">
+            <li><a href="pages/login.html">Login</a></li>
+            <li><a href="pages/register.html">Register</a></li>
+            <li><a href="pages/profile.html">Profile</a></li>
+            <li><a href="pages/admin/login.html">Admin</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2024 KL Video Streaming Platform. FSWD Academic Project.</p>
+        <p style="color:var(--text-muted);font-size:.75rem;">
+          <i class="fas fa-shield-alt" aria-hidden="true"></i>
+          Authentication is demo-only and NOT production secure.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- SCRIPTS -->
+  <script src="data/videos.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>

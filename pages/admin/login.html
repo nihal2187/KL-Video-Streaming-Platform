@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Admin Login – KL Video Streaming Platform" />
+  <title>Admin Login – KL Video Streaming Platform</title>
+  <link rel="stylesheet" href="../../style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div class="auth-bg" aria-hidden="true"></div>
+
+  <main class="auth-page admin-auth">
+    <div class="auth-card slide-up">
+
+      <a href="../../index.html" class="auth-logo" aria-label="KL Video Home">
+        <div class="logo-icon" style="width:40px;height:40px;font-size:1.3rem;background:var(--accent-admin);" aria-hidden="true">
+          <i class="fas fa-shield-alt" style="font-size:.9rem;"></i>
+        </div>
+        <span class="logo-text">KL <span style="color:var(--accent-admin)">Admin</span></span>
+      </a>
+
+      <div style="text-align:center;margin-bottom:20px;">
+        <span class="admin-badge"><i class="fas fa-lock"></i> &nbsp;Admin Access Only</span>
+      </div>
+
+      <h1 class="auth-title">Admin Login</h1>
+      <p class="auth-subtitle">Sign in to the administration panel</p>
+
+      <form id="adminLoginForm" novalidate aria-label="Admin login form">
+
+        <div class="form-group">
+          <label class="form-label" for="adminEmail">
+            <i class="fas fa-envelope" aria-hidden="true"></i> Admin Email
+          </label>
+          <input type="email" id="adminEmail" class="form-input"
+            placeholder="admin@klvideo.com" autocomplete="email"
+            aria-required="true" aria-describedby="adminEmailError" />
+          <span class="field-error" id="adminEmailError" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="adminPassword">
+            <i class="fas fa-key" aria-hidden="true"></i> Password
+          </label>
+          <div class="password-wrapper">
+            <input type="password" id="adminPassword" class="form-input"
+              placeholder="Admin password" autocomplete="current-password"
+              aria-required="true" aria-describedby="adminPasswordError" />
+            <button type="button" class="toggle-password"
+              data-target="adminPassword" aria-label="Toggle password visibility">
+              <i class="fas fa-eye" aria-hidden="true"></i>
+            </button>
+          </div>
+          <span class="field-error" id="adminPasswordError" role="alert"></span>
+        </div>
+
+        <div id="adminFormError"
+          style="display:none;background:rgba(229,9,20,.1);border:1px solid var(--border-accent);
+                 border-radius:var(--radius-sm);padding:10px 14px;font-size:.85rem;
+                 color:var(--accent);margin-bottom:14px;"
+          role="alert" aria-live="polite"></div>
+
+        <button type="submit" class="btn-auth" id="adminLoginBtn"
+          style="background:var(--accent-admin);border-color:var(--accent-admin);">
+          <i class="fas fa-sign-in-alt" aria-hidden="true"></i> Sign In as Admin
+        </button>
+      </form>
+
+      <!-- Default admin credentials hint -->
+      <div style="margin-top:14px;padding:10px 14px;background:rgba(99,102,241,.08);
+                  border:1px solid rgba(99,102,241,.2);border-radius:var(--radius-sm);
+                  font-size:.78rem;color:#a5b4fc;text-align:center;" role="note">
+        🛡️ <strong>Default Admin:</strong>&nbsp;
+        <strong>admin@klvideo.com</strong> / <strong>Admin@1234</strong>
+      </div>
+
+      <div class="auth-demo-note" role="note">
+        ⚠️ <strong>Demo Only:</strong> Admin auth uses localStorage.
+        Not production-secure. Normal users cannot access admin pages.
+      </div>
+
+      <div class="auth-divider">or</div>
+      <div class="auth-switch">
+        <a href="../login.html" style="color:var(--text-muted);">
+          <i class="fas fa-arrow-left"></i> Back to User Login
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script>
+    /* ── KL Video Streaming Platform — Admin Login ── */
+
+    const LS_ADMIN_SESSION = 'kl_admin_session';
+
+    function lsGetObj(key) { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } }
+    function lsSet(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+    function showToast(msg, type = 'success') {
+      const icons = { success:'✅', error:'❌', info:'ℹ️', warning:'⚠️' };
+      const t = document.createElement('div');
+      t.className = `toast ${type}`; t.setAttribute('role','alert');
+      t.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${msg}</span>`;
+      document.getElementById('toastContainer').appendChild(t);
+      setTimeout(() => { t.classList.add('removing'); t.addEventListener('animationend', () => t.remove()); }, 3000);
+    }
+
+    // Redirect if already logged in as admin
+    if (lsGetObj(LS_ADMIN_SESSION)) {
+      window.location.href = 'index.html';
+    }
+
+    // Ensure default admin account exists
+    function ensureAdminAccount() {
+      const ADMIN_KEY = 'kl_admin_account';
+      if (!lsGetObj(ADMIN_KEY)) {
+        // NOTE: Demo only — plain text password is NOT acceptable in production
+        lsSet(ADMIN_KEY, {
+          name:     'Administrator',
+          email:    'admin@klvideo.com',
+          password: 'Admin@1234',
+          role:     'admin'
+        });
+      }
+    }
+    ensureAdminAccount();
+
+    // Password toggle
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.target);
+        const isText = input.type === 'text';
+        input.type = isText ? 'password' : 'text';
+        btn.querySelector('i').className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+      });
+    });
+
+    // Field helpers
+    function showError(id, errId, msg) {
+      document.getElementById(id).classList.add('error');
+      const e = document.getElementById(errId); e.textContent = msg; e.classList.add('show');
+    }
+    function clearError(id, errId) {
+      document.getElementById(id).classList.remove('error');
+      const e = document.getElementById(errId); e.textContent = ''; e.classList.remove('show');
+    }
+
+    document.getElementById('adminEmail').addEventListener('blur', () => {
+      const v = document.getElementById('adminEmail').value.trim();
+      if (!v || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v))
+        showError('adminEmail', 'adminEmailError', 'Enter a valid email.');
+      else clearError('adminEmail', 'adminEmailError');
+    });
+
+    document.getElementById('adminPassword').addEventListener('blur', () => {
+      if (!document.getElementById('adminPassword').value)
+        showError('adminPassword', 'adminPasswordError', 'Password is required.');
+      else clearError('adminPassword', 'adminPasswordError');
+    });
+
+    // Form submit
+    document.getElementById('adminLoginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const email    = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      const formErr  = document.getElementById('adminFormError');
+      const btn      = document.getElementById('adminLoginBtn');
+      formErr.style.display = 'none';
+
+      let valid = true;
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError('adminEmail', 'adminEmailError', 'Enter a valid email address.'); valid = false;
+      }
+      if (!password) {
+        showError('adminPassword', 'adminPasswordError', 'Password is required.'); valid = false;
+      }
+      if (!valid) return;
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+
+      setTimeout(() => {
+        const admin = lsGetObj('kl_admin_account');
+
+        if (!admin || admin.email.toLowerCase() !== email.toLowerCase()) {
+          formErr.textContent = 'No admin account found with this email.';
+          formErr.style.display = 'block';
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In as Admin';
+          return;
+        }
+
+        if (admin.password !== password) {
+          showError('adminPassword', 'adminPasswordError', 'Incorrect password.');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In as Admin';
+          return;
+        }
+
+        // ✅ Save admin session
+        lsSet(LS_ADMIN_SESSION, { name: admin.name, email: admin.email, role: 'admin' });
+        showToast(`Welcome, ${admin.name}! 🛡️`, 'success');
+        btn.innerHTML = '<i class="fas fa-check"></i> Signed In!';
+        setTimeout(() => window.location.href = 'index.html', 1200);
+      }, 700);
+    });
+  </script>
+</body>
+</html>

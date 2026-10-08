@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Login to KL Video Streaming Platform" />
+  <title>Login – KL Video Streaming Platform</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div class="auth-bg" aria-hidden="true"></div>
+
+  <main class="auth-page">
+    <div class="auth-card slide-up">
+
+      <a href="../index.html" class="auth-logo" aria-label="Back to KL Video home">
+        <div class="logo-icon" style="width:40px;height:40px;font-size:1.3rem;" aria-hidden="true">▶</div>
+        <span class="logo-text">KL <span>Video</span></span>
+      </a>
+
+      <h1 class="auth-title">Welcome Back</h1>
+      <p class="auth-subtitle">Sign in to continue watching</p>
+
+      <form id="loginForm" novalidate aria-label="Login form">
+
+        <div class="form-group">
+          <label class="form-label" for="loginEmail">
+            <i class="fas fa-envelope" aria-hidden="true"></i> Email Address
+          </label>
+          <input type="email" id="loginEmail" class="form-input"
+            placeholder="you@example.com" autocomplete="email"
+            aria-required="true" aria-describedby="emailError" />
+          <span class="field-error" id="emailError" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">
+            <i class="fas fa-lock" aria-hidden="true"></i> Password
+          </label>
+          <div class="password-wrapper">
+            <input type="password" id="loginPassword" class="form-input"
+              placeholder="Enter your password" autocomplete="current-password"
+              aria-required="true" aria-describedby="passwordError" />
+            <button type="button" class="toggle-password"
+              aria-label="Toggle password visibility" data-target="loginPassword">
+              <i class="fas fa-eye" aria-hidden="true"></i>
+            </button>
+          </div>
+          <span class="field-error" id="passwordError" role="alert"></span>
+        </div>
+
+        <div id="formError" style="display:none;background:rgba(229,9,20,.1);border:1px solid var(--border-accent);border-radius:var(--radius-sm);padding:10px 14px;font-size:.85rem;color:var(--accent);margin-bottom:14px;" role="alert" aria-live="polite"></div>
+
+        <button type="submit" class="btn-auth" id="loginSubmitBtn">
+          <i class="fas fa-sign-in-alt" aria-hidden="true"></i> Sign In
+        </button>
+      </form>
+
+      <!-- Demo credentials box -->
+      <div style="margin-top:14px;padding:10px 14px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--radius-sm);font-size:.78rem;color:#60a5fa;text-align:center;" role="note">
+        💡 <strong>Demo:</strong> &nbsp;<strong>demo@klvideo.com</strong> / <strong>Demo@1234</strong><br/>
+        Or register a new account below.
+      </div>
+
+      <div class="auth-demo-note" role="note">
+        ⚠️ <strong>Demo Only:</strong> Authentication is for educational demonstration.
+        Passwords stored in localStorage are NOT production-secure.
+      </div>
+
+      <!-- Admin login link -->
+      <div style="text-align:center;margin-top:14px;">
+        <a href="admin/login.html" style="font-size:.8rem;color:var(--text-muted);display:inline-flex;align-items:center;gap:5px;">
+          <i class="fas fa-shield-alt"></i> Admin? Login here
+        </a>
+      </div>
+
+      <div class="auth-divider">or</div>
+      <div class="auth-switch">
+        Don't have an account? <a href="register.html">Create one for free</a>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script>
+    /* ── KL Video Streaming Platform — Login Page ── */
+    const LS_SESSION = 'kl_session';
+
+    function lsGetObj(key) { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } }
+    function lsSet(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+    function getUsers() { try { return JSON.parse(localStorage.getItem('kl_users')) || []; } catch { return []; } }
+
+    function showToast(msg, type = 'success') {
+      const icons = { success:'✅', error:'❌', info:'ℹ️', warning:'⚠️' };
+      const t = document.createElement('div');
+      t.className = `toast ${type}`; t.setAttribute('role','alert');
+      t.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${msg}</span>`;
+      document.getElementById('toastContainer').appendChild(t);
+      setTimeout(() => { t.classList.add('removing'); t.addEventListener('animationend',()=>t.remove()); }, 3000);
+    }
+
+    // Redirect if already logged in
+    if (lsGetObj(LS_SESSION)) window.location.href = '../index.html';
+
+    // Seed demo user if no users exist
+    function ensureDemoUser() {
+      let users = getUsers();
+      if (users.length === 0) {
+        users = [{ name:'Demo User', email:'demo@klvideo.com', password:'Demo@1234', role:'user', joined: Date.now() }];
+        localStorage.setItem('kl_users', JSON.stringify(users));
+      }
+    }
+    ensureDemoUser();
+
+    // Password toggle
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.target);
+        const isText = input.type === 'text';
+        input.type = isText ? 'password' : 'text';
+        btn.querySelector('i').className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+      });
+    });
+
+    // Field helpers
+    function showError(id, errId, msg) {
+      const el = document.getElementById(id); el.classList.add('error'); el.classList.remove('success');
+      const e  = document.getElementById(errId); e.textContent = msg; e.classList.add('show');
+    }
+    function clearError(id, errId) {
+      const el = document.getElementById(id); el.classList.remove('error'); el.classList.add('success');
+      const e  = document.getElementById(errId); e.textContent = ''; e.classList.remove('show');
+    }
+
+    // Blur validation
+    document.getElementById('loginEmail').addEventListener('blur', () => {
+      const v = document.getElementById('loginEmail').value.trim();
+      if (!v) showError('loginEmail','emailError','Email is required.');
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) showError('loginEmail','emailError','Enter a valid email.');
+      else clearError('loginEmail','emailError');
+    });
+    document.getElementById('loginPassword').addEventListener('blur', () => {
+      if (!document.getElementById('loginPassword').value) showError('loginPassword','passwordError','Password is required.');
+      else clearError('loginPassword','passwordError');
+    });
+
+    // Submit
+    document.getElementById('loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const formErr  = document.getElementById('formError');
+      const btn      = document.getElementById('loginSubmitBtn');
+      formErr.style.display = 'none';
+
+      let valid = true;
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('loginEmail','emailError','Enter a valid email address.'); valid=false; }
+      if (!password) { showError('loginPassword','passwordError','Password is required.'); valid=false; }
+      if (!valid) return;
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+
+      setTimeout(() => {
+        const users = getUsers();
+        const user  = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+        if (!user) {
+          formErr.textContent = 'No account found with this email. Please register first.';
+          formErr.style.display = 'block';
+          btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In'; return;
+        }
+        if (user.password !== password) {
+          showError('loginPassword','passwordError','Incorrect password. Try again.');
+          btn.disabled = false; btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In'; return;
+        }
+
+        lsSet(LS_SESSION, { name: user.name, email: user.email, role: user.role || 'user' });
+        showToast(`Welcome back, ${user.name}! 🎉`, 'success');
+        btn.innerHTML = '<i class="fas fa-check"></i> Signed In!';
+        setTimeout(() => window.location.href = '../index.html', 1200);
+      }, 700);
+    });
+  </script>
+</body>
+</html>

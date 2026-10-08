@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Your KL Video Streaming Platform profile" />
+  <title>Profile – KL Video Streaming Platform</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo" aria-label="KL Video Home">
+        <div class="logo-icon" aria-hidden="true">▶</div>
+        <span class="logo-text">KL <span>Video</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="../index.html"           class="nav-link">Home</a></li>
+        <li><a href="../index.html#watchlist" class="nav-link">Watchlist</a></li>
+        <li><a href="../index.html#history"   class="nav-link">History</a></li>
+        <li><a href="profile.html"            class="nav-link active">Profile</a></li>
+      </ul>
+      <div class="nav-right">
+        <div id="authButtons">
+          <a href="login.html" class="btn-login">Login</a>
+          <a href="register.html" class="btn-signup">Sign Up</a>
+        </div>
+        <div class="user-menu hidden" id="userMenu">
+          <button class="user-avatar-btn" id="userAvatarBtn" aria-label="User menu" aria-expanded="false">
+            <span id="userAvatarInitial">U</span>
+          </button>
+          <div class="user-dropdown" id="userDropdown">
+            <div class="dropdown-user-info">
+              <div class="dropdown-user-name" id="dropdownUserName">User</div>
+            </div>
+            <div class="dropdown-item logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</div>
+          </div>
+        </div>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-nav" id="mobileNav" aria-hidden="true">
+    <ul class="mobile-nav-links">
+      <li><a href="../index.html" class="mobile-nav-link">🏠 Home</a></li>
+      <li><a href="profile.html"  class="mobile-nav-link active">👤 Profile</a></li>
+    </ul>
+    <div class="mobile-nav-auth" id="mobileAuthBtns">
+      <a href="login.html" class="btn-login">Login</a>
+      <a href="register.html" class="btn-signup">Sign Up</a>
+    </div>
+    <div class="mobile-nav-auth hidden" id="mobileUserRow">
+      <span id="mobileUserName" style="font-size:.9rem;color:var(--text-secondary)"></span>
+      <button class="btn-login" id="mobileLogoutBtn" style="margin-left:auto">Logout</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main class="page-wrapper">
+    <div class="container">
+
+      <!-- Not logged in -->
+      <div id="notLoggedInState" class="hidden" style="text-align:center;padding:100px 20px;">
+        <div style="font-size:4rem;margin-bottom:16px;" aria-hidden="true">🔒</div>
+        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:8px;">Login Required</h2>
+        <p style="color:var(--text-muted);margin-bottom:28px;">Please log in to view your profile.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <a href="login.html"    class="btn-primary"   style="text-decoration:none;padding:12px 28px;"><i class="fas fa-sign-in-alt"></i> Login</a>
+          <a href="register.html" class="btn-secondary" style="text-decoration:none;padding:12px 28px;"><i class="fas fa-user-plus"></i> Register</a>
+        </div>
+      </div>
+
+      <!-- Profile layout (logged in) -->
+      <div id="profileLayout" class="profile-layout hidden">
+
+        <!-- Left card -->
+        <aside>
+          <div class="profile-card">
+            <div class="profile-avatar-wrapper">
+              <div class="profile-avatar" id="profileAvatar" aria-label="User avatar">
+                <em id="profileAvatarInitial" style="font-style:normal">U</em>
+              </div>
+            </div>
+            <h1 class="profile-name"  id="profileName">Loading...</h1>
+            <p class="profile-email"  id="profileEmail">loading@example.com</p>
+            <div class="profile-stats">
+              <div class="stat-box"><div class="stat-value" id="watchlistCount">0</div><div class="stat-label">Watchlist</div></div>
+              <div class="stat-box"><div class="stat-value" id="historyCount">0</div><div class="stat-label">Watched</div></div>
+              <div class="stat-box"><div class="stat-value" id="likesCount">0</div><div class="stat-label">Liked</div></div>
+              <div class="stat-box"><div class="stat-value" id="memberSince">–</div><div class="stat-label">Member</div></div>
+            </div>
+            <button class="btn-logout" id="profileLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+          </div>
+        </aside>
+
+        <!-- Right content -->
+        <div class="profile-content">
+
+          <!-- Edit name -->
+          <section class="profile-section-card" aria-label="Edit profile">
+            <h2 class="profile-section-title"><i class="fas fa-user-edit"></i> Edit Profile</h2>
+            <div class="form-group">
+              <label class="form-label" for="editNameInput">Display Name</label>
+              <div class="edit-name-group">
+                <input type="text" id="editNameInput" placeholder="Enter display name" autocomplete="name" />
+                <button class="btn-save" id="saveNameBtn"><i class="fas fa-save"></i> Save</button>
+              </div>
+              <p id="editNameFeedback" style="font-size:.78rem;margin-top:6px;display:none;"></p>
+            </div>
+            <div class="form-group" style="margin-top:16px;">
+              <label class="form-label">Email Address</label>
+              <p id="profileEmailDisplay" style="font-size:.9rem;color:var(--text-secondary);padding:10px 0;">–</p>
+              <p style="font-size:.75rem;color:var(--text-muted);"><i class="fas fa-info-circle"></i> Email cannot be changed in demo mode.</p>
+            </div>
+          </section>
+
+          <!-- Watchlist preview -->
+          <section class="profile-section-card" aria-label="Watchlist preview">
+            <h2 class="profile-section-title">
+              <i class="fas fa-bookmark"></i> My Watchlist
+              <span id="watchlistBadge" style="background:var(--accent);color:white;font-size:.72rem;padding:2px 8px;border-radius:20px;font-weight:700;margin-left:auto;">0</span>
+            </h2>
+            <div id="profileWatchlistPreview"></div>
+            <div style="margin-top:12px;">
+              <a href="../index.html#watchlist" class="see-all-btn" style="display:inline-block;text-decoration:none;">View Full Watchlist →</a>
+            </div>
+          </section>
+
+          <!-- History preview -->
+          <section class="profile-section-card" aria-label="Watch history preview">
+            <h2 class="profile-section-title">
+              <i class="fas fa-history"></i> Recent History
+              <span id="historyBadge" style="background:rgba(59,130,246,.8);color:white;font-size:.72rem;padding:2px 8px;border-radius:20px;font-weight:700;margin-left:auto;">0</span>
+            </h2>
+            <div id="profileHistoryPreview"></div>
+            <div style="margin-top:12px;">
+              <a href="../index.html#history" class="see-all-btn" style="display:inline-block;text-decoration:none;">View Full History →</a>
+            </div>
+          </section>
+
+          <!-- Liked videos -->
+          <section class="profile-section-card" aria-label="Liked videos">
+            <h2 class="profile-section-title">
+              <i class="fas fa-heart" style="color:var(--accent)"></i> Liked Videos
+              <span id="likesBadge" style="background:rgba(239,68,68,.8);color:white;font-size:.72rem;padding:2px 8px;border-radius:20px;font-weight:700;margin-left:auto;">0</span>
+            </h2>
+            <div id="profileLikesPreview"></div>
+          </section>
+
+          <!-- Account info -->
+          <section class="profile-section-card" aria-label="Account info">
+            <h2 class="profile-section-title"><i class="fas fa-shield-alt"></i> Account Info</h2>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+                <span style="font-size:.875rem;color:var(--text-secondary);">Account Type</span>
+                <span id="accountRoleDisplay" style="font-size:.875rem;font-weight:600;color:var(--accent);">User</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+                <span style="font-size:.875rem;color:var(--text-secondary);">Data Storage</span>
+                <span style="font-size:.875rem;font-weight:600;">localStorage</span>
+              </div>
+              <div style="padding:10px 14px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:var(--radius-sm);">
+                <p style="font-size:.78rem;color:#fbbf24;line-height:1.5;">
+                  ⚠️ <strong>Demo Notice:</strong> Authentication uses localStorage for demonstration.
+                  Not suitable for production. No real data is sent to any server.
+                </p>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div><!-- /profileLayout -->
+    </div>
+  </main>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script src="../data/videos.js"></script>
+  <script>
+    /* ── KL Video Streaming Platform — Profile Page ── */
+
+    const LS = { SESSION:'kl_session' };
+
+    function lsGet(key)     { try { return JSON.parse(localStorage.getItem(key)) || []; }   catch { return []; } }
+    function lsGetObj(key)  { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } }
+    function lsSet(key,val) { localStorage.setItem(key, JSON.stringify(val)); }
+    function getUsers()     { try { return JSON.parse(localStorage.getItem('kl_users')) || []; } catch { return []; } }
+
+    // Per-user key (mirrors getUserKey in script.js)
+    function getUserKey(base, email) {
+      return `${base}_${(email||'guest').toLowerCase().trim()}`;
+    }
+
+    function showToast(msg, type='success') {
+      const icons={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};
+      const t=document.createElement('div'); t.className=`toast ${type}`; t.setAttribute('role','alert');
+      t.innerHTML=`<span class="toast-icon">${icons[type]}</span><span>${msg}</span>`;
+      document.getElementById('toastContainer').appendChild(t);
+      setTimeout(()=>{t.classList.add('removing');t.addEventListener('animationend',()=>t.remove());},3000);
+    }
+
+    // Navbar scroll
+    window.addEventListener('scroll',()=>document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>10));
+
+    // Hamburger
+    document.getElementById('hamburgerBtn').addEventListener('click',()=>{
+      document.getElementById('mobileNav').classList.toggle('open');
+      document.getElementById('hamburgerBtn').classList.toggle('open');
+    });
+
+    // Logout
+    function logout() {
+      localStorage.removeItem(LS.SESSION);
+      showToast('Logged out 👋','info');
+      setTimeout(()=>window.location.href='../index.html',1000);
+    }
+    document.getElementById('logoutBtn').addEventListener('click',logout);
+    document.getElementById('profileLogoutBtn').addEventListener('click',logout);
+    document.getElementById('mobileLogoutBtn').addEventListener('click',logout);
+
+    // User dropdown
+    const avatarBtn=document.getElementById('userAvatarBtn');
+    const dropdown =document.getElementById('userDropdown');
+    avatarBtn.addEventListener('click',e=>{e.stopPropagation();dropdown.classList.toggle('open');});
+    document.addEventListener('click',()=>dropdown.classList.remove('open'));
+
+    /* ── Mini video list renderer ── */
+    function renderMiniList(ids, containerId, emptyMsg) {
+      const c = document.getElementById(containerId);
+      if (!c) return;
+      const videos = ids.map(id=>getVideoById(id)).filter(Boolean).slice(0,4);
+      if (videos.length === 0) { c.innerHTML=`<p style="color:var(--text-muted);font-size:.85rem;padding:8px 0">${emptyMsg}</p>`; return; }
+      c.innerHTML='';
+      videos.forEach(v=>{
+        const item=document.createElement('div');
+        item.style.cssText='display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;';
+        item.innerHTML=`
+          <img src="${v.thumbnail}" alt="${v.title}"
+            style="width:72px;aspect-ratio:16/9;object-fit:cover;border-radius:4px;flex-shrink:0;"
+            loading="lazy" onerror="this.src='https://picsum.photos/seed/${v.id}/320/180'" />
+          <div>
+            <p style="font-size:.85rem;font-weight:600;margin-bottom:3px;">${v.title}</p>
+            <p style="font-size:.75rem;color:var(--text-muted);">
+              <span style="color:var(--accent)">${v.category}</span>&nbsp;·&nbsp;${v.duration}
+            </p>
+          </div>`;
+        item.setAttribute('role','button'); item.setAttribute('tabindex','0');
+        item.addEventListener('click',()=>{window.location.href=`watch.html?id=${v.id}`;});
+        item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();window.location.href=`watch.html?id=${v.id}`;}});
+        c.appendChild(item);
+      });
+    }
+
+    /* ── Load Profile ── */
+    function loadProfile() {
+      const session = lsGetObj(LS.SESSION);
+      const layout  = document.getElementById('profileLayout');
+      const noLogin = document.getElementById('notLoggedInState');
+
+      if (!session) {
+        layout.classList.add('hidden'); noLogin.classList.remove('hidden');
+        document.getElementById('authButtons').classList.remove('hidden');
+        document.getElementById('userMenu').classList.add('hidden');
+        return;
+      }
+
+      noLogin.classList.add('hidden'); layout.classList.remove('hidden');
+
+      // Navbar
+      document.getElementById('authButtons').classList.add('hidden');
+      document.getElementById('userMenu').classList.remove('hidden');
+      document.getElementById('mobileAuthBtns').classList.add('hidden');
+      document.getElementById('mobileUserRow').classList.remove('hidden');
+      document.getElementById('userAvatarInitial').textContent = (session.name||'U')[0].toUpperCase();
+      document.getElementById('dropdownUserName').textContent  = session.name;
+      document.getElementById('mobileUserName').textContent    = `Hello, ${session.name}`;
+
+      // Fill profile card
+      document.getElementById('profileAvatarInitial').textContent = (session.name||'U')[0].toUpperCase();
+      document.getElementById('profileName').textContent           = session.name||'User';
+      document.getElementById('profileEmail').textContent          = session.email||'';
+      document.getElementById('profileEmailDisplay').textContent   = session.email||'';
+      document.getElementById('editNameInput').value               = session.name||'';
+      document.getElementById('accountRoleDisplay').textContent    = session.role==='admin' ? 'Admin' : 'Free User';
+      document.getElementById('memberSince').textContent           = new Date().getFullYear();
+
+      // Per-user data
+      const email     = session.email;
+      const watchlist = lsGet(getUserKey('kl_watchlist', email));
+      const history   = lsGet(getUserKey('kl_history',   email));
+      const likes     = lsGet(getUserKey('kl_likes',     email));
+
+      document.getElementById('watchlistCount').textContent = watchlist.length;
+      document.getElementById('historyCount').textContent   = history.length;
+      document.getElementById('likesCount').textContent     = likes.length;
+      document.getElementById('watchlistBadge').textContent = watchlist.length;
+      document.getElementById('historyBadge').textContent   = history.length;
+      document.getElementById('likesBadge').textContent     = likes.length;
+
+      renderMiniList(watchlist,                  'profileWatchlistPreview', 'Your watchlist is empty. Add some videos!');
+      renderMiniList(history.map(h=>h.id),       'profileHistoryPreview',   'No watch history yet. Start watching!');
+      renderMiniList(likes,                      'profileLikesPreview',     'No liked videos yet.');
+    }
+
+    /* ── Edit Display Name ── */
+    document.getElementById('saveNameBtn').addEventListener('click', ()=>{
+      const newName  = document.getElementById('editNameInput').value.trim();
+      const feedback = document.getElementById('editNameFeedback');
+      if (!newName || newName.length < 2) {
+        feedback.textContent='❌ Name must be at least 2 characters.';
+        feedback.style.color='var(--accent)'; feedback.style.display='block'; return;
+      }
+      const session = lsGetObj(LS.SESSION);
+      if (!session) return;
+      session.name = newName;
+      lsSet(LS.SESSION, session);
+
+      // Also update in kl_users array
+      const users = getUsers();
+      const idx   = users.findIndex(u => u.email.toLowerCase() === session.email.toLowerCase());
+      if (idx !== -1) { users[idx].name = newName; localStorage.setItem('kl_users', JSON.stringify(users)); }
+
+      document.getElementById('profileName').textContent          = newName;
+      document.getElementById('profileAvatarInitial').textContent = newName[0].toUpperCase();
+      document.getElementById('userAvatarInitial').textContent    = newName[0].toUpperCase();
+      document.getElementById('dropdownUserName').textContent     = newName;
+
+      feedback.textContent='✅ Name updated!'; feedback.style.color='#22c55e'; feedback.style.display='block';
+      showToast('Display name updated! ✅','success');
+      setTimeout(()=>{ feedback.style.display='none'; }, 3000);
+    });
+    document.getElementById('editNameInput').addEventListener('keydown', e=>{
+      if (e.key==='Enter') document.getElementById('saveNameBtn').click();
+    });
+
+    document.addEventListener('DOMContentLoaded', loadProfile);
+  </script>
+</body>
+</html>

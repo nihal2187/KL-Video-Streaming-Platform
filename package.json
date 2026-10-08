@@ -1,0 +1,19 @@
+{
+  "name": "kl-video-streaming-platform",
+  "version": "1.0.0",
+  "description": "KL Video Streaming Platform — FSWD Academic Project with Node.js + Express backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["video", "streaming", "nodejs", "express", "fswd"],
+  "author": "KL Video Streaming Platform",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

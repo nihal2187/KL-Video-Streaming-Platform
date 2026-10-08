@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Admin Dashboard – KL Video Streaming Platform" />
+  <title>Admin Dashboard – KL Video Streaming Platform</title>
+  <link rel="stylesheet" href="../../style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+  <!-- ADMIN NAVBAR -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Admin navigation">
+    <div class="nav-container">
+      <a href="../../index.html" class="nav-logo" aria-label="KL Video Home">
+        <div class="logo-icon" style="background:var(--accent-admin);" aria-hidden="true">
+          <i class="fas fa-shield-alt" style="font-size:.9rem;"></i>
+        </div>
+        <span class="logo-text">KL <span style="color:var(--accent-admin)">Admin</span></span>
+      </a>
+      <div style="flex:1;"></div>
+      <span class="admin-badge" style="margin-right:12px;">
+        <i class="fas fa-shield-alt"></i> Admin Panel
+      </span>
+      <span id="adminNameDisplay" style="font-size:.875rem;color:var(--text-secondary);margin-right:16px;"></span>
+      <button id="adminLogoutBtn" class="btn-login" style="border-color:var(--accent-admin);color:var(--accent-admin);">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- ADMIN LAYOUT -->
+  <div class="admin-wrapper" style="padding-top:var(--nav-height);">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" role="navigation" aria-label="Admin menu">
+      <div class="admin-sidebar-title">Admin Menu</div>
+      <a href="index.html"  class="admin-nav-link active">
+        <i class="fas fa-tachometer-alt" aria-hidden="true"></i> Dashboard
+      </a>
+      <a href="videos.html" class="admin-nav-link">
+        <i class="fas fa-film" aria-hidden="true"></i> Manage Videos
+      </a>
+      <a href="users.html"  class="admin-nav-link">
+        <i class="fas fa-users" aria-hidden="true"></i> Manage Users
+      </a>
+      <a href="../../index.html" class="admin-nav-link" style="margin-top:auto;border-top:1px solid var(--border);">
+        <i class="fas fa-eye" aria-hidden="true"></i> View Site
+      </a>
+    </aside>
+
+    <!-- Main content -->
+    <main class="admin-main" role="main">
+      <h1 class="admin-page-title">Dashboard</h1>
+      <p class="admin-page-subtitle">Welcome back! Here's an overview of KL Video Streaming Platform.</p>
+
+      <!-- Quick actions bar -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;padding:16px 20px;
+                  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+        <a href="videos.html" class="btn-admin-primary" style="text-decoration:none;">
+          <i class="fas fa-plus"></i> Add Video
+        </a>
+        <button id="loadDemoBtn" class="btn-admin-edit">
+          <i class="fas fa-magic"></i> Load Demo Videos
+        </button>
+        <button id="clearVideosBtn" class="btn-admin-danger">
+          <i class="fas fa-trash"></i> Clear All Videos
+        </button>
+        <span id="quickActionMsg" style="font-size:.82rem;color:var(--text-muted);align-self:center;"></span>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="admin-stats-grid" id="statsGrid">
+        <div class="admin-stat-card accent">
+          <span class="admin-stat-icon">🎬</span>
+          <div class="admin-stat-value" id="statTotalVideos">0</div>
+          <div class="admin-stat-label">Total Videos</div>
+        </div>
+        <div class="admin-stat-card indigo">
+          <span class="admin-stat-icon">👥</span>
+          <div class="admin-stat-value" id="statTotalUsers">0</div>
+          <div class="admin-stat-label">Registered Users</div>
+        </div>
+        <div class="admin-stat-card green">
+          <span class="admin-stat-icon">🗂️</span>
+          <div class="admin-stat-value" id="statCategories">0</div>
+          <div class="admin-stat-label">Categories</div>
+        </div>
+        <div class="admin-stat-card yellow">
+          <span class="admin-stat-icon">⭐</span>
+          <div class="admin-stat-value" id="statAvgRating">0</div>
+          <div class="admin-stat-label">Avg Rating</div>
+        </div>
+      </div>
+
+      <!-- Category breakdown -->
+      <div class="admin-table-wrapper" style="margin-bottom:28px;">
+        <div class="admin-table-header">
+          <span class="admin-table-title">📊 Videos by Category</span>
+          <a href="videos.html" class="btn-admin-primary" style="text-decoration:none;">
+            <i class="fas fa-plus"></i> Add Video
+          </a>
+        </div>
+        <div style="padding:0 24px 20px;">
+          <div id="categoryBreakdown" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:16px;"></div>
+        </div>
+      </div>
+
+      <!-- Recent videos table -->
+      <div class="admin-table-wrapper">
+        <div class="admin-table-header">
+          <span class="admin-table-title">🎞️ Recent Videos</span>
+          <a href="videos.html" class="btn-admin-edit" style="text-decoration:none;">
+            View All →
+          </a>
+        </div>
+        <div style="overflow-x:auto;">
+          <table aria-label="Recent videos">
+            <thead>
+              <tr>
+                <th>Thumbnail</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Year</th>
+                <th>Rating</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recentVideosTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recent users -->
+      <div class="admin-table-wrapper" style="margin-top:28px;">
+        <div class="admin-table-header">
+          <span class="admin-table-title">👤 Recent Registrations</span>
+          <a href="users.html" class="btn-admin-edit" style="text-decoration:none;">View All →</a>
+        </div>
+        <div style="overflow-x:auto;">
+          <table aria-label="Recent users">
+            <thead>
+              <tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr>
+            </thead>
+            <tbody id="recentUsersTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script src="../../data/videos.js"></script>
+  <script>
+    /* ── KL Video Streaming Platform — Admin Dashboard ── */
+
+    const LS_ADMIN = 'kl_admin_session';
+
+    function lsGetObj(key) { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } }
+    function lsSet(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+    function getUsers() { try { return JSON.parse(localStorage.getItem('kl_users')) || []; } catch { return []; } }
+
+    function showToast(msg, type = 'success') {
+      const icons = { success:'✅', error:'❌', info:'ℹ️', warning:'⚠️' };
+      const t = document.createElement('div');
+      t.className = `toast ${type}`; t.setAttribute('role','alert');
+      t.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${msg}</span>`;
+      document.getElementById('toastContainer').appendChild(t);
+      setTimeout(() => { t.classList.add('removing'); t.addEventListener('animationend', () => t.remove()); }, 3000);
+    }
+
+    // ── Guard: Admin only ──
+    function guardAdmin() {
+      const session = lsGetObj(LS_ADMIN);
+      if (!session || session.role !== 'admin') {
+        window.location.href = 'login.html';
+        return null;
+      }
+      return session;
+    }
+
+    window.addEventListener('scroll', () =>
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10));
+
+    // Logout
+    document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+      localStorage.removeItem(LS_ADMIN);
+      showToast('Admin logged out', 'info');
+      setTimeout(() => window.location.href = 'login.html', 900);
+    });
+
+    /* ── Load Dashboard ──  */
+    function loadDashboard() {
+      const session = guardAdmin();
+      if (!session) return;
+
+      document.getElementById('adminNameDisplay').textContent = `Logged in as: ${session.name}`;
+
+      // ── Quick action buttons (replace nodes to avoid duplicate listeners) ──
+      const loadDemoBtn    = document.getElementById('loadDemoBtn');
+      const clearVideosBtn = document.getElementById('clearVideosBtn');
+
+      const newLoadBtn = loadDemoBtn.cloneNode(true);
+      loadDemoBtn.parentNode.replaceChild(newLoadBtn, loadDemoBtn);
+      newLoadBtn.addEventListener('click', () => {
+        const result = adminLoadDemoVideos(); // from data/videos.js
+        document.getElementById('quickActionMsg').textContent = result.message;
+        if (result.added > 0) {
+          showToast(`${result.added} demo videos loaded!`, 'success');
+          setTimeout(() => location.reload(), 800);
+        } else {
+          showToast(result.message, 'warning');
+        }
+      });
+
+      const newClearBtn = clearVideosBtn.cloneNode(true);
+      clearVideosBtn.parentNode.replaceChild(newClearBtn, clearVideosBtn);
+      newClearBtn.addEventListener('click', () => {
+        if (!confirm('Delete ALL videos? This cannot be undone.')) return;
+        adminClearAllVideos(); // from data/videos.js
+        showToast('All videos cleared.', 'info');
+        document.getElementById('quickActionMsg').textContent = 'All videos cleared.';
+        setTimeout(() => location.reload(), 800);
+      });
+
+      const videos = getVideos();
+      const users  = getUsers();
+
+      // Stat counts
+      document.getElementById('statTotalVideos').textContent  = videos.length;
+      document.getElementById('statTotalUsers').textContent   = users.length;
+
+      // Unique categories in current data
+      const cats = [...new Set(videos.map(v => v.category))];
+      document.getElementById('statCategories').textContent   = cats.length;
+
+      // Average rating
+      const avgRating = videos.length
+        ? (videos.reduce((s, v) => s + parseFloat(v.rating || 0), 0) / videos.length).toFixed(1)
+        : '0.0';
+      document.getElementById('statAvgRating').textContent = avgRating;
+
+      // Category breakdown cards
+      const catCounts = {};
+      videos.forEach(v => { catCounts[v.category] = (catCounts[v.category] || 0) + 1; });
+      const cb = document.getElementById('categoryBreakdown');
+      cb.innerHTML = '';
+      Object.entries(catCounts).sort((a,b) => b[1]-a[1]).forEach(([cat, count]) => {
+        const d = document.createElement('div');
+        d.style.cssText = 'background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;';
+        d.innerHTML = `
+          <span style="font-size:.875rem;font-weight:600;">${cat}</span>
+          <span style="background:var(--accent-soft);color:var(--accent);font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:20px;">${count}</span>`;
+        cb.appendChild(d);
+      });
+
+      // Recent videos table (last 8)
+      const recentVids = [...videos].sort((a,b) => b.id - a.id).slice(0, 8);
+      const tbody = document.getElementById('recentVideosTable');
+      tbody.innerHTML = '';
+      if (recentVids.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px;">No videos yet. Click "Add Video" or "Load Demo Videos" above.</td></tr>';
+      } else {
+        recentVids.forEach(v => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><img src="${v.thumbnail}" alt="${v.title}" class="td-thumb"
+              onerror="this.src='https://picsum.photos/seed/${v.id}/120/68'" /></td>
+            <td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.title}</td>
+            <td><span class="td-category-pill">${v.category}</span></td>
+            <td>${v.year}</td>
+            <td style="color:#fbbf24;">⭐ ${v.rating}</td>
+            <td>
+              <div class="td-actions">
+                <a href="videos.html?edit=${v.id}" class="btn-admin-edit" style="text-decoration:none;font-size:.75rem;">
+                  <i class="fas fa-edit"></i> Edit
+                </a>
+              </div>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Recent users table (last 5)
+      const recentUsers = [...users].sort((a,b) => (b.joined||0) - (a.joined||0)).slice(0, 5);
+      const utbody = document.getElementById('recentUsersTable');
+      utbody.innerHTML = '';
+      if (recentUsers.length === 0) {
+        utbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;">No registered users yet.</td></tr>';
+      } else {
+        recentUsers.forEach(u => {
+          const tr = document.createElement('tr');
+          const date = u.joined ? new Date(u.joined).toLocaleDateString() : 'N/A';
+          tr.innerHTML = `
+            <td style="font-weight:600;">${u.name}</td>
+            <td style="color:var(--text-muted);">${u.email}</td>
+            <td><span class="user-role-${u.role || 'user'}">${u.role || 'user'}</span></td>
+            <td style="color:var(--text-muted);font-size:.8rem;">${date}</td>`;
+          utbody.appendChild(tr);
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadDashboard);
+  </script>
+</body>
+</html>

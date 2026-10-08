@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Create a KL Video Streaming Platform account" />
+  <title>Register – KL Video Streaming Platform</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div class="auth-bg" aria-hidden="true"></div>
+
+  <main class="auth-page">
+    <div class="auth-card slide-up">
+
+      <a href="../index.html" class="auth-logo" aria-label="Back to KL Video home">
+        <div class="logo-icon" style="width:40px;height:40px;font-size:1.3rem;" aria-hidden="true">▶</div>
+        <span class="logo-text">KL <span>Video</span></span>
+      </a>
+
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Join KL Video Streaming Platform for free</p>
+
+      <form id="registerForm" novalidate aria-label="Registration form">
+
+        <div class="form-group">
+          <label class="form-label" for="regName">
+            <i class="fas fa-user" aria-hidden="true"></i> Full Name
+          </label>
+          <input type="text" id="regName" class="form-input"
+            placeholder="Your full name" autocomplete="name"
+            aria-required="true" aria-describedby="nameError" />
+          <span class="field-error" id="nameError" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regEmail">
+            <i class="fas fa-envelope" aria-hidden="true"></i> Email Address
+          </label>
+          <input type="email" id="regEmail" class="form-input"
+            placeholder="you@example.com" autocomplete="email"
+            aria-required="true" aria-describedby="regEmailError" />
+          <span class="field-error" id="regEmailError" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regPassword">
+            <i class="fas fa-lock" aria-hidden="true"></i> Password
+          </label>
+          <div class="password-wrapper">
+            <input type="password" id="regPassword" class="form-input"
+              placeholder="Min 8 characters" autocomplete="new-password"
+              aria-required="true" aria-describedby="regPasswordError" />
+            <button type="button" class="toggle-password" data-target="regPassword" aria-label="Toggle password visibility">
+              <i class="fas fa-eye" aria-hidden="true"></i>
+            </button>
+          </div>
+          <span class="field-error" id="regPasswordError" role="alert"></span>
+          <!-- Strength bar -->
+          <div id="strengthBar" style="display:none;margin-top:8px;">
+            <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+              <div id="strengthFill" style="height:100%;width:0%;border-radius:2px;transition:all .3s ease;"></div>
+            </div>
+            <p id="strengthText" style="font-size:.72rem;margin-top:4px;color:var(--text-muted);"></p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regConfirm">
+            <i class="fas fa-lock" aria-hidden="true"></i> Confirm Password
+          </label>
+          <div class="password-wrapper">
+            <input type="password" id="regConfirm" class="form-input"
+              placeholder="Re-enter your password" autocomplete="new-password"
+              aria-required="true" aria-describedby="confirmError" />
+            <button type="button" class="toggle-password" data-target="regConfirm" aria-label="Toggle confirm password visibility">
+              <i class="fas fa-eye" aria-hidden="true"></i>
+            </button>
+          </div>
+          <span class="field-error" id="confirmError" role="alert"></span>
+        </div>
+
+        <div id="regFormError" style="display:none;background:rgba(229,9,20,.1);border:1px solid var(--border-accent);border-radius:var(--radius-sm);padding:10px 14px;font-size:.85rem;color:var(--accent);margin-bottom:14px;" role="alert" aria-live="polite"></div>
+
+        <button type="submit" class="btn-auth" id="registerSubmitBtn">
+          <i class="fas fa-user-plus" aria-hidden="true"></i> Create Account
+        </button>
+      </form>
+
+      <div class="auth-demo-note" role="note">
+        ⚠️ <strong>Demo Only:</strong> Registration stores data in localStorage for
+        educational purposes. Not production-secure.
+      </div>
+
+      <div class="auth-divider">or</div>
+      <div class="auth-switch">
+        Already have an account? <a href="login.html">Sign in here</a>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script>
+    /* ── KL Video Streaming Platform — Register Page ── */
+    const LS_SESSION = 'kl_session';
+
+    function lsGetObj(key) { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } }
+    function lsSet(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+    function getUsers() { try { return JSON.parse(localStorage.getItem('kl_users')) || []; } catch { return []; } }
+
+    function showToast(msg, type='success') {
+      const icons = {success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};
+      const t = document.createElement('div');
+      t.className=`toast ${type}`; t.setAttribute('role','alert');
+      t.innerHTML=`<span class="toast-icon">${icons[type]}</span><span>${msg}</span>`;
+      document.getElementById('toastContainer').appendChild(t);
+      setTimeout(()=>{t.classList.add('removing');t.addEventListener('animationend',()=>t.remove());},3500);
+    }
+
+    // Redirect if already logged in
+    if (lsGetObj(LS_SESSION)) window.location.href = '../index.html';
+
+    // Password toggle
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.target);
+        const isText = input.type === 'text';
+        input.type = isText ? 'password' : 'text';
+        btn.querySelector('i').className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+      });
+    });
+
+    // Password strength
+    document.getElementById('regPassword').addEventListener('input', function() {
+      const val = this.value;
+      const bar = document.getElementById('strengthBar');
+      const fill= document.getElementById('strengthFill');
+      const txt = document.getElementById('strengthText');
+      if (!val) { bar.style.display='none'; return; }
+      bar.style.display = 'block';
+      let score = 0;
+      if (val.length >= 8) score++;
+      if (val.length >= 12) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+      const levels = [
+        {label:'Very Weak', color:'#ef4444', width:'20%'},
+        {label:'Weak',      color:'#f97316', width:'40%'},
+        {label:'Fair',      color:'#f59e0b', width:'60%'},
+        {label:'Strong',    color:'#22c55e', width:'80%'},
+        {label:'Very Strong',color:'#10b981',width:'100%'},
+      ];
+      const l = levels[Math.min(score,4)];
+      fill.style.background = l.color; fill.style.width = l.width;
+      txt.textContent = `Strength: ${l.label}`; txt.style.color = l.color;
+    });
+
+    // Helpers
+    function showError(id,errId,msg){
+      document.getElementById(id).classList.add('error'); document.getElementById(id).classList.remove('success');
+      const e=document.getElementById(errId); e.textContent=msg; e.classList.add('show');
+    }
+    function clearError(id,errId){
+      document.getElementById(id).classList.remove('error'); document.getElementById(id).classList.add('success');
+      const e=document.getElementById(errId); e.textContent=''; e.classList.remove('show');
+    }
+
+    // Blur validation
+    document.getElementById('regName').addEventListener('blur',()=>{
+      const v=document.getElementById('regName').value.trim();
+      if(!v||v.length<2) showError('regName','nameError','Name must be at least 2 characters.');
+      else clearError('regName','nameError');
+    });
+    document.getElementById('regEmail').addEventListener('blur',()=>{
+      const v=document.getElementById('regEmail').value.trim();
+      if(!v||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) showError('regEmail','regEmailError','Enter a valid email.');
+      else clearError('regEmail','regEmailError');
+    });
+    document.getElementById('regPassword').addEventListener('blur',()=>{
+      const v=document.getElementById('regPassword').value;
+      if(!v||v.length<8) showError('regPassword','regPasswordError','Password must be at least 8 characters.');
+      else clearError('regPassword','regPasswordError');
+    });
+    document.getElementById('regConfirm').addEventListener('blur',()=>{
+      const pw=document.getElementById('regPassword').value;
+      const v=document.getElementById('regConfirm').value;
+      if(!v||v!==pw) showError('regConfirm','confirmError','Passwords do not match.');
+      else clearError('regConfirm','confirmError');
+    });
+
+    // Submit
+    document.getElementById('registerForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const name    = document.getElementById('regName').value.trim();
+      const email   = document.getElementById('regEmail').value.trim();
+      const pw      = document.getElementById('regPassword').value;
+      const confirm = document.getElementById('regConfirm').value;
+      const formErr = document.getElementById('regFormError');
+      const btn     = document.getElementById('registerSubmitBtn');
+      formErr.style.display = 'none';
+
+      let valid = true;
+      if (!name || name.length < 2) { showError('regName','nameError','Name must be at least 2 characters.'); valid=false; }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('regEmail','regEmailError','Enter a valid email address.'); valid=false; }
+      if (!pw || pw.length < 8) { showError('regPassword','regPasswordError','Password must be at least 8 characters.'); valid=false; }
+      if (pw !== confirm) { showError('regConfirm','confirmError','Passwords do not match.'); valid=false; }
+      if (!valid) return;
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+
+      setTimeout(() => {
+        const users = getUsers();
+        if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+          formErr.textContent = 'An account with this email already exists. Try logging in.';
+          formErr.style.display = 'block';
+          btn.disabled = false; btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account'; return;
+        }
+        // NOTE: We never store passwords in production — this is demo only
+        users.push({ name, email, password: pw, role: 'user', joined: Date.now() });
+        localStorage.setItem('kl_users', JSON.stringify(users));
+        lsSet(LS_SESSION, { name, email, role: 'user' });
+        showToast(`Account created! Welcome, ${name}! 🎉`, 'success');
+        btn.innerHTML = '<i class="fas fa-check"></i> Account Created!';
+        setTimeout(() => window.location.href = '../index.html', 1200);
+      }, 700);
+    });
+  </script>
+</body>
+</html>

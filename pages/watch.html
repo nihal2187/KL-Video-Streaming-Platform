@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Watch video – KL Video Streaming Platform" />
+  <title>Watch – KL Video Streaming Platform</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo" aria-label="KL Video Home">
+        <div class="logo-icon" aria-hidden="true">▶</div>
+        <span class="logo-text">KL <span>Video</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="../index.html"           class="nav-link">Home</a></li>
+        <li><a href="../index.html#watchlist" class="nav-link">Watchlist</a></li>
+        <li><a href="../index.html#history"   class="nav-link">History</a></li>
+        <li><a href="profile.html"            class="nav-link">Profile</a></li>
+      </ul>
+      <div class="nav-right">
+        <div id="authButtons">
+          <a href="login.html"    class="btn-login">Login</a>
+          <a href="register.html" class="btn-signup">Sign Up</a>
+        </div>
+        <div class="user-menu hidden" id="userMenu">
+          <button class="user-avatar-btn" id="userAvatarBtn" aria-label="User menu" aria-expanded="false">
+            <span id="userAvatarInitial">U</span>
+          </button>
+          <div class="user-dropdown" id="userDropdown">
+            <div class="dropdown-user-info">
+              <div class="dropdown-user-name" id="dropdownUserName">User</div>
+            </div>
+            <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
+            <div class="dropdown-item logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</div>
+          </div>
+        </div>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle mobile menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile nav -->
+  <div class="mobile-nav" id="mobileNav" aria-hidden="true">
+    <ul class="mobile-nav-links">
+      <li><a href="../index.html" class="mobile-nav-link">🏠 Home</a></li>
+      <li><a href="profile.html"  class="mobile-nav-link">👤 Profile</a></li>
+    </ul>
+    <div class="mobile-nav-auth" id="mobileAuthBtns">
+      <a href="login.html" class="btn-login">Login</a>
+      <a href="register.html" class="btn-signup">Sign Up</a>
+    </div>
+    <div class="mobile-nav-auth hidden" id="mobileUserRow">
+      <span id="mobileUserName" style="font-size:.9rem;color:var(--text-secondary)"></span>
+      <button class="btn-login" id="mobileLogoutBtn" style="margin-left:auto">Logout</button>
+    </div>
+  </div>
+
+  <!-- MAIN WATCH CONTENT -->
+  <main class="page-wrapper" id="mainContent">
+    <div class="container">
+      <div class="watch-layout" id="watchLayout">
+
+        <!-- Left: Player + Info -->
+        <div class="player-section">
+
+          <div class="video-player-wrapper" id="playerWrapper">
+            <video id="videoPlayer" preload="metadata" aria-label="Video player" poster="">
+              <p>Your browser does not support the HTML5 video element.</p>
+            </video>
+
+            <!-- Custom Controls -->
+            <div class="player-controls" id="playerControls" aria-label="Video controls">
+              <div class="progress-bar-wrapper" id="progressWrapper"
+                role="slider" aria-label="Video progress"
+                aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+                <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+              </div>
+              <div class="controls-row">
+                <button class="ctrl-btn" id="playPauseBtn" aria-label="Play video">
+                  <i class="fas fa-play" aria-hidden="true"></i>
+                </button>
+                <button class="ctrl-btn" id="muteBtn" aria-label="Mute">
+                  <i class="fas fa-volume-up" aria-hidden="true"></i>
+                </button>
+                <input type="range" class="volume-slider" id="volumeSlider"
+                  min="0" max="1" step="0.05" value="1" aria-label="Volume" />
+                <span class="time-display" id="timeDisplay" aria-live="off">0:00 / 0:00</span>
+                <div class="controls-spacer" aria-hidden="true"></div>
+                <select class="speed-select" id="speedSelect" aria-label="Playback speed">
+                  <option value="0.5">0.5×</option>
+                  <option value="0.75">0.75×</option>
+                  <option value="1" selected>1×</option>
+                  <option value="1.25">1.25×</option>
+                  <option value="1.5">1.5×</option>
+                  <option value="2">2×</option>
+                </select>
+                <button class="ctrl-btn" id="pipBtn" aria-label="Picture in Picture" title="PiP">
+                  <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                </button>
+                <button class="ctrl-btn" id="fullscreenBtn" aria-label="Enter fullscreen">
+                  <i class="fas fa-expand" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+          </div><!-- /player-wrapper -->
+
+          <!-- Video Info -->
+          <div class="video-info">
+            <h1 class="video-title-watch" id="videoTitle">Loading...</h1>
+            <div class="video-actions-row">
+              <button class="action-btn" id="likeBtn" aria-label="Like this video">
+                <i class="fas fa-heart" aria-hidden="true"></i>
+                <span id="likeBtnText">Like</span>
+              </button>
+              <button class="action-btn" id="watchlistBtn" aria-label="Add to watchlist">
+                <i class="fas fa-bookmark" aria-hidden="true"></i>
+                <span id="watchlistBtnText">Add to Watchlist</span>
+              </button>
+              <button class="action-btn" id="shareBtn" aria-label="Share this video">
+                <i class="fas fa-share-alt" aria-hidden="true"></i> Share
+              </button>
+              <a href="../index.html" class="action-btn" aria-label="Back to home">
+                <i class="fas fa-arrow-left" aria-hidden="true"></i> Back
+              </a>
+            </div>
+            <div class="video-meta-grid">
+              <div><div class="meta-item-label">Rating</div><div class="meta-item-value" id="metaRating" style="color:#fbbf24">–</div></div>
+              <div><div class="meta-item-label">Duration</div><div class="meta-item-value" id="metaDuration">–</div></div>
+              <div><div class="meta-item-label">Year</div><div class="meta-item-value" id="metaYear">–</div></div>
+              <div><div class="meta-item-label">Category</div><div class="meta-item-value" id="metaCategory">–</div></div>
+            </div>
+            <p class="video-description-watch" id="videoDescription">–</p>
+          </div>
+        </div><!-- /player-section -->
+
+        <!-- Right: Related -->
+        <aside class="watch-sidebar" aria-label="Related videos">
+          <h2 class="sidebar-title">🎬 Related Videos</h2>
+          <div id="relatedContainer"></div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script src="../data/videos.js"></script>
+  <script>
+    /* ── KL Video Streaming Platform — Watch Page ── */
+
+    const LS = { SESSION: 'kl_session' };
+
+    function lsGet(key)     { try { return JSON.parse(localStorage.getItem(key)) || []; }   catch { return []; } }
+    function lsGetObj(key)  { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } }
+    function lsSet(key,val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+    // Per-user key — matches getUserKey() in script.js
+    function getUserKey(base) {
+      const s = lsGetObj(LS.SESSION);
+      const email = s ? s.email.toLowerCase().trim() : 'guest';
+      return `${base}_${email}`;
+    }
+
+    function showToast(msg, type='success', dur=3000) {
+      const icons={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};
+      const t=document.createElement('div'); t.className=`toast ${type}`; t.setAttribute('role','alert');
+      t.innerHTML=`<span class="toast-icon">${icons[type]}</span><span>${msg}</span>`;
+      document.getElementById('toastContainer').appendChild(t);
+      setTimeout(()=>{t.classList.add('removing');t.addEventListener('animationend',()=>t.remove());},dur);
+    }
+
+    // Navbar scroll
+    window.addEventListener('scroll',()=>document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>10));
+
+    // Hamburger
+    document.getElementById('hamburgerBtn').addEventListener('click',()=>{
+      const open=document.getElementById('mobileNav').classList.toggle('open');
+      document.getElementById('hamburgerBtn').classList.toggle('open',open);
+    });
+
+    // Auth UI
+    function updateAuthUI() {
+      const s = lsGetObj(LS.SESSION);
+      if (s) {
+        document.getElementById('authButtons').classList.add('hidden');
+        document.getElementById('userMenu').classList.remove('hidden');
+        document.getElementById('mobileAuthBtns').classList.add('hidden');
+        document.getElementById('mobileUserRow').classList.remove('hidden');
+        document.getElementById('userAvatarInitial').textContent = (s.name||'U')[0].toUpperCase();
+        document.getElementById('dropdownUserName').textContent  = s.name||'User';
+        document.getElementById('mobileUserName').textContent    = `Hello, ${s.name}`;
+      }
+    }
+    updateAuthUI();
+
+    const avatarBtn = document.getElementById('userAvatarBtn');
+    const dropdown  = document.getElementById('userDropdown');
+    avatarBtn.addEventListener('click',e=>{e.stopPropagation();dropdown.classList.toggle('open');});
+    document.addEventListener('click',()=>dropdown.classList.remove('open'));
+
+    function logout() {
+      localStorage.removeItem(LS.SESSION);
+      showToast('Logged out 👋','info');
+      setTimeout(()=>window.location.href='../index.html',1000);
+    }
+    document.getElementById('logoutBtn').addEventListener('click',logout);
+    document.getElementById('mobileLogoutBtn').addEventListener('click',logout);
+
+    /* ── Per-user Watchlist ── */
+    function isInWatchlist(id) { return lsGet(getUserKey('kl_watchlist')).includes(Number(id)); }
+    function toggleWatchlist(id) {
+      const numId = Number(id);
+      let list = lsGet(getUserKey('kl_watchlist'));
+      const btn  = document.getElementById('watchlistBtn');
+      const txt  = document.getElementById('watchlistBtnText');
+      if (list.includes(numId)) {
+        lsSet(getUserKey('kl_watchlist'), list.filter(v=>v!==numId));
+        btn.classList.remove('in-watchlist'); txt.textContent='Add to Watchlist';
+        showToast('Removed from Watchlist','info');
+      } else {
+        list.push(numId); lsSet(getUserKey('kl_watchlist'),list);
+        btn.classList.add('in-watchlist'); txt.textContent='In Watchlist ✓';
+        showToast('Added to Watchlist 🔖','success');
+      }
+    }
+
+    /* ── Per-user Likes ── */
+    function isLiked(id) { return lsGet(getUserKey('kl_likes')).includes(Number(id)); }
+    function toggleLike(id) {
+      const numId=Number(id);
+      let likes=lsGet(getUserKey('kl_likes'));
+      const btn=document.getElementById('likeBtn');
+      const txt=document.getElementById('likeBtnText');
+      if (likes.includes(numId)) {
+        lsSet(getUserKey('kl_likes'),likes.filter(v=>v!==numId));
+        btn.classList.remove('liked'); txt.textContent='Like';
+        showToast('Removed from Liked Videos','info');
+      } else {
+        likes.push(numId); lsSet(getUserKey('kl_likes'),likes);
+        btn.classList.add('liked'); txt.textContent='Liked ❤️';
+        showToast('Video Liked! ❤️','success');
+      }
+    }
+
+    /* ── Per-user History ── */
+    function addToHistory(id) {
+      const numId=Number(id);
+      let h=lsGet(getUserKey('kl_history')).filter(x=>x.id!==numId);
+      h.unshift({id:numId,timestamp:Date.now()});
+      lsSet(getUserKey('kl_history'),h.slice(0,50));
+    }
+
+    /* ── Share ── */
+    async function shareVideo(id,title) {
+      const url=window.location.href;
+      if (navigator.share) {
+        try { await navigator.share({title:`Watch ${title} on KL Video`,url}); return; }
+        catch(err) { if (err.name==='AbortError') return; }
+      }
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(()=>showToast('Link copied! 📋','success'));
+      } else {
+        const el=document.createElement('textarea'); el.value=url;
+        el.style.position='fixed'; el.style.opacity='0';
+        document.body.appendChild(el); el.select(); document.execCommand('copy');
+        document.body.removeChild(el); showToast('Link copied! 📋','success');
+      }
+    }
+
+    /* ── Time formatter ── */
+    function formatTime(s) {
+      if (isNaN(s)) return '0:00';
+      const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), ss=Math.floor(s%60);
+      if (h>0) return `${h}:${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+      return `${m}:${String(ss).padStart(2,'0')}`;
+    }
+
+    /* ── Custom Video Player ── */
+    function initPlayer(video) {
+      const ve  = document.getElementById('videoPlayer');
+      const wr  = document.getElementById('playerWrapper');
+      const ppb = document.getElementById('playPauseBtn');
+      const mb  = document.getElementById('muteBtn');
+      const vs  = document.getElementById('volumeSlider');
+      const td  = document.getElementById('timeDisplay');
+      const pw  = document.getElementById('progressWrapper');
+      const pf  = document.getElementById('progressFill');
+      const ss  = document.getElementById('speedSelect');
+      const pip = document.getElementById('pipBtn');
+      const fsb = document.getElementById('fullscreenBtn');
+
+      ve.src = video.videoUrl; ve.poster = video.thumbnail;
+
+      function togglePlay() {
+        if (ve.paused) { ve.play(); wr.classList.remove('paused'); }
+        else           { ve.pause(); wr.classList.add('paused'); }
+      }
+      ppb.addEventListener('click', togglePlay);
+      ve.addEventListener('click', togglePlay);
+      ve.addEventListener('play',  ()=>{ ppb.innerHTML='<i class="fas fa-pause"></i>'; ppb.setAttribute('aria-label','Pause'); wr.classList.remove('paused'); });
+      ve.addEventListener('pause', ()=>{ ppb.innerHTML='<i class="fas fa-play"></i>';  ppb.setAttribute('aria-label','Play');  wr.classList.add('paused'); });
+
+      ve.addEventListener('timeupdate', ()=>{
+        if (!ve.duration) return;
+        const pct=(ve.currentTime/ve.duration)*100;
+        pf.style.width=`${pct}%`; pw.setAttribute('aria-valuenow',Math.round(pct));
+        td.textContent=`${formatTime(ve.currentTime)} / ${formatTime(ve.duration)}`;
+      });
+      pw.addEventListener('click', e=>{
+        const rect=pw.getBoundingClientRect();
+        ve.currentTime=((e.clientX-rect.left)/rect.width)*ve.duration;
+      });
+
+      mb.addEventListener('click', ()=>{
+        ve.muted=!ve.muted;
+        mb.innerHTML=ve.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+        vs.value=ve.muted ? 0 : ve.volume;
+      });
+      vs.addEventListener('input', ()=>{
+        ve.volume=vs.value; ve.muted=(ve.volume===0);
+        mb.innerHTML=ve.volume===0 ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+      });
+
+      ss.addEventListener('change', ()=>{ ve.playbackRate=parseFloat(ss.value); });
+
+      pip.addEventListener('click', async ()=>{
+        if (!document.pictureInPictureEnabled) { showToast('PiP not supported','warning'); return; }
+        try {
+          if (document.pictureInPictureElement) await document.exitPictureInPicture();
+          else await ve.requestPictureInPicture();
+        } catch { showToast('PiP not available for this video','warning'); }
+      });
+
+      fsb.addEventListener('click', ()=>{
+        if (!document.fullscreenElement) {
+          wr.requestFullscreen().catch(()=>{});
+          fsb.innerHTML='<i class="fas fa-compress"></i>'; fsb.setAttribute('aria-label','Exit fullscreen');
+        } else {
+          document.exitFullscreen();
+          fsb.innerHTML='<i class="fas fa-expand"></i>'; fsb.setAttribute('aria-label','Enter fullscreen');
+        }
+      });
+      document.addEventListener('fullscreenchange', ()=>{
+        if (!document.fullscreenElement) { fsb.innerHTML='<i class="fas fa-expand"></i>'; fsb.setAttribute('aria-label','Enter fullscreen'); }
+      });
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', e=>{
+        if (e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||e.target.tagName==='TEXTAREA') return;
+        switch(e.key) {
+          case ' ': case 'k': e.preventDefault(); togglePlay(); break;
+          case 'f': case 'F': fsb.click(); break;
+          case 'm': case 'M': mb.click(); break;
+          case 'ArrowRight': ve.currentTime=Math.min(ve.currentTime+10,ve.duration); showToast('⏩ +10s','info',800); break;
+          case 'ArrowLeft':  ve.currentTime=Math.max(ve.currentTime-10,0);           showToast('⏪ -10s','info',800); break;
+          case 'ArrowUp':   e.preventDefault(); ve.volume=Math.min(ve.volume+0.1,1); vs.value=ve.volume; break;
+          case 'ArrowDown': e.preventDefault(); ve.volume=Math.max(ve.volume-0.1,0); vs.value=ve.volume; break;
+        }
+      });
+    }
+
+    /* ── Related Videos ── */
+    function renderRelated(currentId, category) {
+      const related   = getRelatedVideos(currentId, category, 8);
+      const container = document.getElementById('relatedContainer');
+      container.innerHTML = '';
+      if (related.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted);font-size:.85rem;padding:10px 0">No related videos found.</p>';
+        return;
+      }
+      related.forEach(v => {
+        const item = document.createElement('div');
+        item.className = 'related-video-item';
+        item.setAttribute('role','button'); item.setAttribute('tabindex','0');
+        item.setAttribute('aria-label',`Watch ${v.title}`);
+        item.innerHTML = `
+          <div class="related-thumb">
+            <img src="${v.thumbnail}" alt="Thumbnail: ${v.title}" loading="lazy"
+              onerror="this.src='https://picsum.photos/seed/${v.id}/320/180'" />
+          </div>
+          <div class="related-info">
+            <p class="related-title">${v.title}</p>
+            <p class="related-meta">
+              <span style="color:var(--accent)">${v.category}</span>
+              &nbsp;·&nbsp;${v.duration}&nbsp;·&nbsp;⭐ ${v.rating}
+            </p>
+          </div>`;
+        const go = ()=>{ window.location.href=`watch.html?id=${v.id}`; };
+        item.addEventListener('click', go);
+        item.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();go();} });
+        container.appendChild(item);
+      });
+    }
+
+    /* ── Main Init ── */
+    function initWatchPage() {
+      const id    = new URLSearchParams(window.location.search).get('id');
+      if (!id) { document.getElementById('videoTitle').textContent='Video not found'; return; }
+
+      const video = getVideoById(id);
+      if (!video) { document.getElementById('videoTitle').textContent='Video Not Found'; return; }
+
+      // Update page title
+      document.title = `${video.title} – KL Video Streaming Platform`;
+
+      // Fill info (textContent to avoid XSS)
+      document.getElementById('videoTitle').textContent       = video.title;
+      document.getElementById('videoDescription').textContent = video.description;
+      document.getElementById('metaRating').textContent       = `${video.rating} / 10`;
+      document.getElementById('metaDuration').textContent     = video.duration;
+      document.getElementById('metaYear').textContent         = video.year;
+      document.getElementById('metaCategory').textContent     = video.category;
+
+      initPlayer(video);
+      addToHistory(video.id);
+
+      // Watchlist state
+      const wlBtn  = document.getElementById('watchlistBtn');
+      const wlText = document.getElementById('watchlistBtnText');
+      if (isInWatchlist(video.id)) { wlBtn.classList.add('in-watchlist'); wlText.textContent='In Watchlist ✓'; }
+      wlBtn.addEventListener('click', ()=>toggleWatchlist(video.id));
+
+      // Like state
+      const likeBtn = document.getElementById('likeBtn');
+      if (isLiked(video.id)) { likeBtn.classList.add('liked'); document.getElementById('likeBtnText').textContent='Liked ❤️'; }
+      likeBtn.addEventListener('click', ()=>toggleLike(video.id));
+
+      // Share
+      document.getElementById('shareBtn').addEventListener('click', ()=>shareVideo(video.id, video.title));
+
+      // Related
+      renderRelated(video.id, video.category);
+    }
+
+    document.addEventListener('DOMContentLoaded', initWatchPage);
+  </script>
+</body>
+</html>

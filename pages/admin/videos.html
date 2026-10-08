@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Manage Videos – KL Video Admin" />
+  <title>Manage Videos – KL Video Admin</title>
+  <link rel="stylesheet" href="../../style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Admin navigation">
+    <div class="nav-container">
+      <a href="../../index.html" class="nav-logo" aria-label="KL Video Home">
+        <div class="logo-icon" style="background:var(--accent-admin);" aria-hidden="true">
+          <i class="fas fa-shield-alt" style="font-size:.9rem;"></i>
+        </div>
+        <span class="logo-text">KL <span style="color:var(--accent-admin)">Admin</span></span>
+      </a>
+      <div style="flex:1;"></div>
+      <span class="admin-badge"><i class="fas fa-shield-alt"></i> Admin Panel</span>
+      <span id="adminNameDisplay" style="font-size:.875rem;color:var(--text-secondary);margin:0 16px;"></span>
+      <button id="adminLogoutBtn" class="btn-login" style="border-color:var(--accent-admin);color:var(--accent-admin);">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- LAYOUT -->
+  <div class="admin-wrapper" style="padding-top:var(--nav-height);">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" role="navigation" aria-label="Admin menu">
+      <div class="admin-sidebar-title">Admin Menu</div>
+      <a href="index.html"  class="admin-nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="videos.html" class="admin-nav-link active"><i class="fas fa-film"></i> Manage Videos</a>
+      <a href="users.html"  class="admin-nav-link"><i class="fas fa-users"></i> Manage Users</a>
+      <a href="../../index.html" class="admin-nav-link" style="border-top:1px solid var(--border);">
+        <i class="fas fa-eye"></i> View Site
+      </a>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main" role="main">
+      <h1 class="admin-page-title">Manage Videos</h1>
+      <p class="admin-page-subtitle">Add, edit, or delete videos. Changes appear instantly on the user-facing site.</p>
+
+      <!-- Videos table -->
+      <div class="admin-table-wrapper">
+        <div class="admin-table-header">
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex:1;">
+            <span class="admin-table-title">🎬 All Videos</span>
+            <span id="videoCountBadge" style="background:var(--accent-soft);color:var(--accent);font-size:.75rem;font-weight:700;padding:2px 10px;border-radius:20px;">0 videos</span>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <!-- Search -->
+            <div class="admin-search-bar" style="width:220px;">
+              <i class="fas fa-search" style="color:var(--text-muted);font-size:.85rem;" aria-hidden="true"></i>
+              <input type="search" id="videoSearchInput" placeholder="Search videos..." aria-label="Search videos" />
+            </div>
+            <!-- Category filter -->
+            <select id="videoCategoryFilter" class="admin-select" style="width:150px;" aria-label="Filter by category">
+              <option value="">All Categories</option>
+            </select>
+            <!-- Add button -->
+            <button class="btn-admin-primary" id="openAddModalBtn">
+              <i class="fas fa-plus"></i> Add Video
+            </button>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table aria-label="Videos table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Thumbnail</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Duration</th>
+                <th>Year</th>
+                <th>Rating</th>
+                <th>Featured</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="videosTableBody"></tbody>
+          </table>
+          <div id="noVideosMsg" class="hidden" style="text-align:center;padding:48px;color:var(--text-muted);">
+            <div style="font-size:3rem;margin-bottom:12px;">🎬</div>
+            <p>No videos found. Add your first video!</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ADD / EDIT MODAL -->
+  <div class="modal-overlay" id="videoModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Add Video</h2>
+        <button class="modal-close" id="closeModalBtn" aria-label="Close modal">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="videoForm" novalidate aria-label="Video form">
+          <input type="hidden" id="videoId" />
+
+          <div class="admin-form-grid">
+            <!-- Title -->
+            <div class="form-group full-width">
+              <label class="form-label" for="vTitle">Title <span style="color:var(--accent)">*</span></label>
+              <input type="text" id="vTitle" class="form-input" placeholder="Video title" required />
+              <span class="field-error" id="vTitleError" role="alert"></span>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+              <label class="form-label" for="vCategory">Category <span style="color:var(--accent)">*</span></label>
+              <select id="vCategory" class="admin-select form-input" required aria-required="true">
+                <option value="">Select category</option>
+                <option>Movies</option><option>Series</option><option>Action</option>
+                <option>Comedy</option><option>Drama</option><option>Animation</option>
+                <option>Documentary</option><option>Sports</option>
+                <option>Technology</option><option>Music</option>
+              </select>
+              <span class="field-error" id="vCategoryError" role="alert"></span>
+            </div>
+
+            <!-- Year -->
+            <div class="form-group">
+              <label class="form-label" for="vYear">Year</label>
+              <input type="number" id="vYear" class="form-input" placeholder="2024" min="1900" max="2099" />
+            </div>
+
+            <!-- Duration -->
+            <div class="form-group">
+              <label class="form-label" for="vDuration">Duration</label>
+              <input type="text" id="vDuration" class="form-input" placeholder="1:30:00" />
+            </div>
+
+            <!-- Rating -->
+            <div class="form-group">
+              <label class="form-label" for="vRating">Rating (0–10)</label>
+              <input type="number" id="vRating" class="form-input" placeholder="8.5" min="0" max="10" step="0.1" />
+            </div>
+
+            <!-- Featured -->
+            <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:28px;">
+              <input type="checkbox" id="vFeatured" style="width:16px;height:16px;accent-color:var(--accent-admin);" />
+              <label class="form-label" for="vFeatured" style="margin:0;cursor:pointer;">Featured (Hero)</label>
+            </div>
+
+            <!-- Thumbnail URL -->
+            <div class="form-group full-width">
+              <label class="form-label" for="vThumbnail">Thumbnail URL</label>
+              <input type="url" id="vThumbnail" class="form-input" placeholder="https://example.com/thumb.jpg" />
+              <p style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">
+                Leave blank to auto-generate a placeholder thumbnail.
+              </p>
+            </div>
+
+            <!-- Video URL -->
+            <div class="form-group full-width">
+              <label class="form-label" for="vVideoUrl">Video URL <span style="color:var(--accent)">*</span></label>
+              <input type="url" id="vVideoUrl" class="form-input"
+                placeholder="https://example.com/video.mp4 or YouTube embed URL" required />
+              <span class="field-error" id="vVideoUrlError" role="alert"></span>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group full-width">
+              <label class="form-label" for="vDescription">Description</label>
+              <textarea id="vDescription" class="form-input admin-textarea"
+                placeholder="Short description of the video..."></textarea>
+            </div>
+          </div><!-- /admin-form-grid -->
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" id="cancelModalBtn">Cancel</button>
+        <button class="btn-admin-primary" id="saveVideoBtn">
+          <i class="fas fa-save"></i> Save Video
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRM MODAL -->
+  <div class="modal-overlay" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+    <div class="modal-box" style="max-width:420px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="deleteModalTitle">Delete Video</h2>
+        <button class="modal-close" id="closeDeleteModalBtn" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body" style="text-align:center;padding:32px 24px;">
+        <div style="font-size:3rem;margin-bottom:12px;" aria-hidden="true">🗑️</div>
+        <p style="font-size:1rem;font-weight:600;margin-bottom:8px;">Delete this video?</p>
+        <p id="deleteVideoTitle" style="color:var(--text-muted);font-size:.875rem;margin-bottom:0;"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" id="cancelDeleteBtn">Cancel</button>
+        <button class="btn-admin-danger" id="confirmDeleteBtn" style="padding:10px 20px;">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script src="../../data/videos.js"></script>
+  <script>
+    /* ── KL Video Streaming Platform — Admin: Manage Videos ── */
+
+    const LS_ADMIN = 'kl_admin_session';
+
+    function lsGetObj(key) { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } }
+    function lsSet(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+    function showToast(msg, type = 'success') {
+      const icons = { success:'✅', error:'❌', info:'ℹ️', warning:'⚠️' };
+      const t = document.createElement('div');
+      t.className = `toast ${type}`; t.setAttribute('role','alert');
+      t.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${msg}</span>`;
+      document.getElementById('toastContainer').appendChild(t);
+      setTimeout(() => { t.classList.add('removing'); t.addEventListener('animationend', () => t.remove()); }, 3000);
+    }
+
+    // Guard: admin only
+    function guardAdmin() {
+      const s = lsGetObj(LS_ADMIN);
+      if (!s || s.role !== 'admin') { window.location.href = 'login.html'; return null; }
+      return s;
+    }
+
+    window.addEventListener('scroll', () =>
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10));
+
+    document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+      localStorage.removeItem(LS_ADMIN);
+      showToast('Logged out','info');
+      setTimeout(() => window.location.href = 'login.html', 900);
+    });
+
+    /* ── State ── */
+    let deleteTargetId = null;
+    let filterQuery    = '';
+    let filterCat      = '';
+
+    /* ── Populate category filter dropdown ── */
+    function buildCategoryFilter() {
+      const sel = document.getElementById('videoCategoryFilter');
+      const cats = [...new Set(getVideos().map(v => v.category))].sort();
+      cats.forEach(c => {
+        const o = document.createElement('option'); o.value = c; o.textContent = c;
+        sel.appendChild(o);
+      });
+    }
+
+    /* ── Render videos table ── */
+    function renderTable() {
+      const videos = getVideos().filter(v => {
+        const matchQ = !filterQuery ||
+          v.title.toLowerCase().includes(filterQuery.toLowerCase()) ||
+          v.category.toLowerCase().includes(filterQuery.toLowerCase());
+        const matchC = !filterCat || v.category === filterCat;
+        return matchQ && matchC;
+      });
+
+      const tbody = document.getElementById('videosTableBody');
+      const noMsg = document.getElementById('noVideosMsg');
+      tbody.innerHTML = '';
+
+      document.getElementById('videoCountBadge').textContent =
+        `${getVideos().length} video${getVideos().length !== 1 ? 's' : ''}`;
+
+      if (videos.length === 0) {
+        noMsg.classList.remove('hidden'); return;
+      }
+      noMsg.classList.add('hidden');
+
+      videos.forEach(v => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color:var(--text-muted);font-size:.8rem;">#${v.id}</td>
+          <td>
+            <img src="${v.thumbnail}" alt="${v.title}" class="td-thumb"
+              onerror="this.src='https://picsum.photos/seed/${v.id}/120/68'" />
+          </td>
+          <td style="font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+            title="${v.title}">${v.title}</td>
+          <td><span class="td-category-pill">${v.category}</span></td>
+          <td style="color:var(--text-muted);font-size:.82rem;">${v.duration}</td>
+          <td style="color:var(--text-muted);">${v.year}</td>
+          <td style="color:#fbbf24;font-weight:600;">⭐ ${v.rating}</td>
+          <td style="text-align:center;">${v.featured
+            ? '<span style="color:#22c55e;font-size:1.1rem;" aria-label="Featured">✓</span>'
+            : '<span style="color:var(--text-muted);">–</span>'}</td>
+          <td>
+            <div class="td-actions">
+              <button class="btn-admin-edit" data-edit="${v.id}" aria-label="Edit ${v.title}">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button class="btn-admin-danger" data-delete="${v.id}" data-title="${v.title}"
+                aria-label="Delete ${v.title}">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+
+      // Edit buttons
+      tbody.querySelectorAll('[data-edit]').forEach(btn => {
+        btn.addEventListener('click', () => openEditModal(parseInt(btn.dataset.edit)));
+      });
+      // Delete buttons
+      tbody.querySelectorAll('[data-delete]').forEach(btn => {
+        btn.addEventListener('click', () => openDeleteModal(parseInt(btn.dataset.delete), btn.dataset.title));
+      });
+    }
+
+    /* ── Modal helpers ── */
+    function openModal()  { document.getElementById('videoModal').classList.add('open'); }
+    function closeModal() { document.getElementById('videoModal').classList.remove('open'); resetForm(); }
+    function openDeleteModal(id, title) {
+      deleteTargetId = id;
+      document.getElementById('deleteVideoTitle').textContent = `"${title}"`;
+      document.getElementById('deleteModal').classList.add('open');
+    }
+    function closeDeleteModal() {
+      deleteTargetId = null;
+      document.getElementById('deleteModal').classList.remove('open');
+    }
+
+    function resetForm() {
+      document.getElementById('videoForm').reset();
+      document.getElementById('videoId').value = '';
+      document.getElementById('modalTitle').textContent = 'Add Video';
+      document.querySelectorAll('#videoForm .field-error').forEach(e => {
+        e.textContent = ''; e.classList.remove('show');
+      });
+      document.querySelectorAll('#videoForm .form-input').forEach(i => {
+        i.classList.remove('error','success');
+      });
+    }
+
+    function openAddModal() {
+      resetForm();
+      document.getElementById('modalTitle').textContent = 'Add New Video';
+      openModal();
+    }
+
+    function openEditModal(id) {
+      const v = getVideoById(id);
+      if (!v) return;
+      resetForm();
+      document.getElementById('modalTitle').textContent  = 'Edit Video';
+      document.getElementById('videoId').value           = v.id;
+      document.getElementById('vTitle').value            = v.title;
+      document.getElementById('vCategory').value         = v.category;
+      document.getElementById('vYear').value             = v.year;
+      document.getElementById('vDuration').value         = v.duration;
+      document.getElementById('vRating').value           = v.rating;
+      document.getElementById('vFeatured').checked       = v.featured || false;
+      document.getElementById('vThumbnail').value        = v.thumbnail || '';
+      document.getElementById('vVideoUrl').value         = v.videoUrl || '';
+      document.getElementById('vDescription').value      = v.description || '';
+      openModal();
+    }
+
+    /* ── Save (Add or Update) — async to support API calls ── */
+    async function saveVideo() {
+      const id          = document.getElementById('videoId').value;
+      const title       = document.getElementById('vTitle').value.trim();
+      const category    = document.getElementById('vCategory').value;
+      const year        = parseInt(document.getElementById('vYear').value) || new Date().getFullYear();
+      const duration    = document.getElementById('vDuration').value.trim() || '0:00';
+      const rating      = parseFloat(document.getElementById('vRating').value) || 7.0;
+      const featured    = document.getElementById('vFeatured').checked;
+      const thumbnail   = document.getElementById('vThumbnail').value.trim();
+      const videoUrl    = document.getElementById('vVideoUrl').value.trim();
+      const description = document.getElementById('vDescription').value.trim();
+
+      // Validation
+      let valid = true;
+      if (!title) {
+        const e = document.getElementById('vTitleError'); e.textContent = 'Title is required.'; e.classList.add('show');
+        document.getElementById('vTitle').classList.add('error'); valid = false;
+      } else {
+        const e = document.getElementById('vTitleError'); e.textContent = ''; e.classList.remove('show');
+        document.getElementById('vTitle').classList.remove('error');
+      }
+      if (!category) {
+        const e = document.getElementById('vCategoryError'); e.textContent = 'Category is required.'; e.classList.add('show'); valid = false;
+      } else {
+        const e = document.getElementById('vCategoryError'); e.textContent = ''; e.classList.remove('show');
+      }
+      if (!videoUrl) {
+        const e = document.getElementById('vVideoUrlError'); e.textContent = 'Video URL is required.'; e.classList.add('show');
+        document.getElementById('vVideoUrl').classList.add('error'); valid = false;
+      } else {
+        const e = document.getElementById('vVideoUrlError'); e.textContent = ''; e.classList.remove('show');
+        document.getElementById('vVideoUrl').classList.remove('error');
+      }
+      if (!valid) return;
+
+      // Disable save button while request is in flight
+      const saveBtn = document.getElementById('saveVideoBtn');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+      const videoObj = { title, category, year, duration, rating, featured, thumbnail, videoUrl, description };
+
+      try {
+        if (id) {
+          // Edit existing — adminUpdateVideo is async (calls API)
+          await adminUpdateVideo(id, videoObj);
+          showToast(`"${title}" updated successfully! ✅`, 'success');
+        } else {
+          // Add new — adminAddVideo is async (calls API)
+          await adminAddVideo(videoObj);
+          showToast(`"${title}" added! 🎬`, 'success');
+        }
+        closeModal();
+        renderTable();
+        buildCategoryFilter();
+      } catch (err) {
+        showToast(`Error saving video: ${err.message}`, 'error');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Video';
+      }
+    }
+
+    /* ── Delete — async to support API calls ── */
+    async function deleteVideo() {
+      if (!deleteTargetId) return;
+      const v = getVideoById(deleteTargetId);
+      const title = v ? v.title : '';
+
+      const confirmBtn = document.getElementById('confirmDeleteBtn');
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+
+      try {
+        await adminDeleteVideo(deleteTargetId); // async — calls API
+        showToast(`"${title}" deleted.`, 'info');
+        closeDeleteModal();
+        renderTable();
+      } catch (err) {
+        showToast(`Error deleting: ${err.message}`, 'error');
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+      }
+    }
+
+    /* ── Wire up events ── */
+    document.getElementById('openAddModalBtn').addEventListener('click', openAddModal);
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+    document.getElementById('saveVideoBtn').addEventListener('click', saveVideo);
+    document.getElementById('closeDeleteModalBtn').addEventListener('click', closeDeleteModal);
+    document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+    document.getElementById('confirmDeleteBtn').addEventListener('click', deleteVideo);
+
+    // Close modals on overlay click
+    document.getElementById('videoModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('videoModal')) closeModal();
+    });
+    document.getElementById('deleteModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('deleteModal')) closeDeleteModal();
+    });
+
+    // Search
+    document.getElementById('videoSearchInput').addEventListener('input', e => {
+      filterQuery = e.target.value; renderTable();
+    });
+
+    // Category filter
+    document.getElementById('videoCategoryFilter').addEventListener('change', e => {
+      filterCat = e.target.value; renderTable();
+    });
+
+    // Escape key closes modal
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeModal(); closeDeleteModal(); }
+    });
+
+    /* ── Check for ?edit=ID in URL ── */
+    function checkUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      const editId = params.get('edit');
+      if (editId) openEditModal(parseInt(editId));
+    }
+
+    /* ── Init ── */
+    function init() {
+      const session = guardAdmin();
+      if (!session) return;
+      document.getElementById('adminNameDisplay').textContent = `Logged in as: ${session.name}`;
+      buildCategoryFilter();
+      renderTable();
+      checkUrlParams();
+    }
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

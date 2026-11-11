@@ -1,240 +1,347 @@
+
 /* ============================================================
    KL Video Streaming Platform — Express Backend
-   ============================================================
-   Responsibilities:
-   1. Serve all existing frontend static files (HTML/CSS/JS).
-   2. Provide a REST API for video management:
-        GET    /api/videos          → list all videos
-        POST   /api/videos          → add a video
-        PUT    /api/videos/:id      → update a video
-        DELETE /api/videos/:id      → delete a video
-        GET    /api/videos/:id      → get one video
-   3. Persist videos to  data/videos.json  (plain JSON file).
-      No database required — easy for college viva demos.
-
-   Authentication (Signup/Login) stays in the browser with
-   localStorage as required by the SDC project specification.
-   The server does NOT handle auth.
-
-   Run:
-     npm install
-     npm start
-   Open: http://localhost:3000
+   Vercel + Localhost Compatible
    ============================================================ */
 
-const express  = require('express');
-const fs       = require('fs');
-const path     = require('path');
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
+const IS_VERCEL = Boolean(process.env.VERCEL);
 
-// ── Path to the JSON file that stores all videos ──────────
+// File paths
+const PUBLIC_DIR = path.join(__dirname, 'public');
 const VIDEOS_FILE = path.join(__dirname, 'data', 'videos.json');
 
-/* ──────────────────────────────────────────────────────────
-   MIDDLEWARE
-────────────────────────────────────────────────────────── */
+// ============================================================
+// MIDDLEWARE
+// ============================================================
 
-// Parse JSON request bodies
 app.use(express.json());
 
-// Serve the entire project folder as static files.
-// This makes index.html, style.css, script.js, pages/*, etc.
-// all accessible directly at http://localhost:3000/
-app.use(express.static(path.join(__dirname)));
+// Serve frontend files from public folder
+app.use(express.static(PUBLIC_DIR));
 
-/* ──────────────────────────────────────────────────────────
-   FILE HELPERS
-   Read and write data/videos.json
-────────────────────────────────────────────────────────── */
+// ============================================================
+// VIDEO STORAGE
+// Localhost: data/videos.json
+// Vercel: temporary in-memory storage
+// ============================================================
 
-/**
- * readVideos()
- * Reads data/videos.json and returns the array.
- * Returns [] if the file is empty or unreadable.
- */
+let videoStore = [];
+
+function loadInitialVideos() {
+    try {
+        const raw = fs.readFileSync(VIDEOS_FILE, 'utf8');
+        const parsed = JSON.parse(raw);
+
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        console.error('Could not load videos.json:', error.message);
+        return [];
+    }
+}
+
+// Load initial video data
+videoStore = loadInitialVideos();
+
 function readVideos() {
-  try {
-    const raw = fs.readFileSync(VIDEOS_FILE, 'utf8');
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (err) {
-    // File missing or corrupted — start fresh
-    return [];
-  }
+    if (IS_VERCEL) {
+        return videoStore;
+    }
+
+    try {
+        const raw = fs.readFileSync(VIDEOS_FILE, 'utf8');
+        const parsed = JSON.parse(raw);
+
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        return videoStore;
+    }
 }
 
-/**
- * writeVideos(arr)
- * Writes the array to data/videos.json with pretty formatting.
- */
 function writeVideos(arr) {
-  fs.writeFileSync(VIDEOS_FILE, JSON.stringify(arr, null, 2), 'utf8');
+    videoStore = arr;
+
+    // Permanent JSON file writes only on localhost
+    if (!IS_VERCEL) {
+        try {
+            fs.mkdirSync(path.dirname(VIDEOS_FILE), {
+                recursive: true
+            });
+
+            fs.writeFileSync(
+                VIDEOS_FILE,
+                JSON.stringify(arr, null, 2),
+                'utf8'
+            );
+        } catch (error) {
+            console.error('Video storage error:', error.message);
+            throw error;
+        }
+    }
 }
 
-/**
- * nextId(arr)
- * Returns max existing id + 1. Guarantees unique IDs even
- * after deletions.
- */
 function nextId(arr) {
-  if (arr.length === 0) return 1;
-  return Math.max(...arr.map(v => Number(v.id) || 0)) + 1;
+    if (arr.length === 0) return 1;
+
+    return Math.max(
+        ...arr.map(video => Number(video.id) || 0)
+    ) + 1;
 }
 
-/* ──────────────────────────────────────────────────────────
-   API ROUTES
-────────────────────────────────────────────────────────── */
+// ============================================================
+// GET ALL VIDEOS
+// GET /api/videos
+// ============================================================
 
-// ── GET /api/videos ──────────────────────────────────────
-// Returns the full video list.
-// The frontend (script.js and admin pages) call this on load
-// to sync their local state with the server data.
 app.get('/api/videos', (req, res) => {
-  const videos = readVideos();
-  res.json(videos);
+    res.json(readVideos());
 });
 
-// ── GET /api/videos/:id ──────────────────────────────────
-// Returns a single video by ID. Used by watch.html.
+// ============================================================
+// GET SINGLE VIDEO
+// GET /api/videos/:id
+// ============================================================
+
 app.get('/api/videos/:id', (req, res) => {
-  const videos = readVideos();
-  const video  = videos.find(v => v.id === parseInt(req.params.id));
-  if (!video) {
-    return res.status(404).json({ error: `Video with id ${req.params.id} not found.` });
-  }
-  res.json(video);
+    const videos = readVideos();
+    const id = parseInt(req.params.id, 10);
+
+    const video = videos.find(v => Number(v.id) === id);
+
+    if (!video) {
+        return res.status(404).json({
+            error: `Video with id ${id} not found.`
+        });
+    }
+
+    res.json(video);
 });
 
-// ── POST /api/videos ─────────────────────────────────────
-// Adds a new video. Called by Admin "Add Video" form.
-// Body: { title, description, category, duration, year,
-//         rating, thumbnail, videoUrl, featured }
+// ============================================================
+// ADD VIDEO
+// POST /api/videos
+// ============================================================
+
 app.post('/api/videos', (req, res) => {
-  const videos = readVideos();
-  const body   = req.body;
+    const videos = readVideos();
+    const body = req.body || {};
 
-  // Basic validation
-  if (!body.title || !body.title.trim()) {
-    return res.status(400).json({ error: 'title is required.' });
-  }
-  if (!body.videoUrl || !body.videoUrl.trim()) {
-    return res.status(400).json({ error: 'videoUrl is required.' });
-  }
-  if (!body.category) {
-    return res.status(400).json({ error: 'category is required.' });
-  }
+    if (typeof body.title !== 'string' || !body.title.trim()) {
+        return res.status(400).json({
+            error: 'title is required.'
+        });
+    }
 
-  // If this video is being set as featured, unset all others
-  if (body.featured) {
-    videos.forEach(v => { v.featured = false; });
-  }
+    if (typeof body.videoUrl !== 'string' || !body.videoUrl.trim()) {
+        return res.status(400).json({
+            error: 'videoUrl is required.'
+        });
+    }
 
-  const newVideo = {
-    id          : nextId(videos),
-    title       : String(body.title).trim(),
-    description : String(body.description || '').trim(),
-    category    : String(body.category).trim(),
-    duration    : String(body.duration || '0:00').trim(),
-    durationSeconds: parseInt(body.durationSeconds) || 0,
-    year        : parseInt(body.year)   || new Date().getFullYear(),
-    rating      : Math.min(10, Math.max(0, parseFloat(body.rating) || 7.0)),
-    thumbnail   : String(body.thumbnail || '').trim(),
-    videoUrl    : String(body.videoUrl).trim(),
-    featured    : Boolean(body.featured),
-    views       : String(body.views || '0'),
-  };
+    if (typeof body.category !== 'string' || !body.category.trim()) {
+        return res.status(400).json({
+            error: 'category is required.'
+        });
+    }
 
-  videos.push(newVideo);
-  writeVideos(videos);
+    // Only one featured video
+    if (body.featured) {
+        videos.forEach(v => {
+            v.featured = false;
+        });
+    }
 
-  console.log(`[API] Video added: "${newVideo.title}" (id=${newVideo.id})`);
-  res.status(201).json(newVideo);
+    const newVideo = {
+        id: nextId(videos),
+        title: body.title.trim(),
+        description: String(body.description || '').trim(),
+        category: body.category.trim(),
+        duration: String(body.duration || '0:00').trim(),
+        durationSeconds: parseInt(body.durationSeconds, 10) || 0,
+        year: parseInt(body.year, 10) || new Date().getFullYear(),
+        rating: Math.min(10, Math.max(0, parseFloat(body.rating) || 7)),
+        thumbnail: String(body.thumbnail || '').trim(),
+        videoUrl: body.videoUrl.trim(),
+        featured: Boolean(body.featured),
+        views: String(body.views || '0')
+    };
+
+    videos.push(newVideo);
+    writeVideos(videos);
+
+    console.log('[API] Video added:', newVideo.title);
+
+    res.status(201).json(newVideo);
 });
 
-// ── PUT /api/videos/:id ──────────────────────────────────
-// Updates an existing video. Called by Admin "Edit Video".
-// Body: same fields as POST, only changed fields needed.
+// ============================================================
+// UPDATE VIDEO
+// PUT /api/videos/:id
+// ============================================================
+
 app.put('/api/videos/:id', (req, res) => {
-  const videos = readVideos();
-  const id     = parseInt(req.params.id);
-  const idx    = videos.findIndex(v => v.id === id);
+    const videos = readVideos();
+    const id = parseInt(req.params.id, 10);
 
-  if (idx === -1) {
-    return res.status(404).json({ error: `Video with id ${id} not found.` });
-  }
+    const index = videos.findIndex(v => Number(v.id) === id);
 
-  const body = req.body;
+    if (index === -1) {
+        return res.status(404).json({
+            error: `Video with id ${id} not found.`
+        });
+    }
 
-  // If this video is being set as featured, unset all others first
-  if (body.featured) {
-    videos.forEach(v => { v.featured = false; });
-  }
+    const body = req.body || {};
 
-  // Merge updates — keep existing fields if not provided
-  videos[idx] = {
-    ...videos[idx],
-    ...(body.title       !== undefined && { title       : String(body.title).trim() }),
-    ...(body.description !== undefined && { description : String(body.description).trim() }),
-    ...(body.category    !== undefined && { category    : String(body.category).trim() }),
-    ...(body.duration    !== undefined && { duration    : String(body.duration).trim() }),
-    ...(body.durationSeconds !== undefined && { durationSeconds: parseInt(body.durationSeconds) || 0 }),
-    ...(body.year        !== undefined && { year        : parseInt(body.year) || videos[idx].year }),
-    ...(body.rating      !== undefined && { rating      : Math.min(10, Math.max(0, parseFloat(body.rating) || 7.0)) }),
-    ...(body.thumbnail   !== undefined && { thumbnail   : String(body.thumbnail).trim() }),
-    ...(body.videoUrl    !== undefined && { videoUrl    : String(body.videoUrl).trim() }),
-    ...(body.featured    !== undefined && { featured    : Boolean(body.featured) }),
-    ...(body.views       !== undefined && { views       : String(body.views) }),
-    id,   // ID is immutable
-  };
+    if (body.featured) {
+        videos.forEach(v => {
+            v.featured = false;
+        });
+    }
 
-  writeVideos(videos);
-  console.log(`[API] Video updated: "${videos[idx].title}" (id=${id})`);
-  res.json(videos[idx]);
+    const oldVideo = videos[index];
+
+    videos[index] = {
+        ...oldVideo,
+
+        ...(body.title !== undefined && {
+            title: String(body.title).trim()
+        }),
+
+        ...(body.description !== undefined && {
+            description: String(body.description).trim()
+        }),
+
+        ...(body.category !== undefined && {
+            category: String(body.category).trim()
+        }),
+
+        ...(body.duration !== undefined && {
+            duration: String(body.duration).trim()
+        }),
+
+        ...(body.durationSeconds !== undefined && {
+            durationSeconds: parseInt(body.durationSeconds, 10) || 0
+        }),
+
+        ...(body.year !== undefined && {
+            year: parseInt(body.year, 10) || oldVideo.year
+        }),
+
+        ...(body.rating !== undefined && {
+            rating: Math.min(10, Math.max(0, parseFloat(body.rating) || 7))
+        }),
+
+        ...(body.thumbnail !== undefined && {
+            thumbnail: String(body.thumbnail).trim()
+        }),
+
+        ...(body.videoUrl !== undefined && {
+            videoUrl: String(body.videoUrl).trim()
+        }),
+
+        ...(body.featured !== undefined && {
+            featured: Boolean(body.featured)
+        }),
+
+        ...(body.views !== undefined && {
+            views: String(body.views)
+        }),
+
+        id: oldVideo.id
+    };
+
+    writeVideos(videos);
+
+    console.log('[API] Video updated:', id);
+
+    res.json(videos[index]);
 });
 
-// ── DELETE /api/videos/:id ───────────────────────────────
-// Deletes a video. Called by Admin "Delete Video".
+// ============================================================
+// DELETE VIDEO
+// DELETE /api/videos/:id
+// ============================================================
+
 app.delete('/api/videos/:id', (req, res) => {
-  const videos  = readVideos();
-  const id      = parseInt(req.params.id);
-  const filtered = videos.filter(v => v.id !== id);
+    const videos = readVideos();
+    const id = parseInt(req.params.id, 10);
 
-  if (filtered.length === videos.length) {
-    return res.status(404).json({ error: `Video with id ${id} not found.` });
-  }
+    const filtered = videos.filter(v => Number(v.id) !== id);
 
-  writeVideos(filtered);
-  console.log(`[API] Video deleted: id=${id}`);
-  res.json({ success: true, deletedId: id });
+    if (filtered.length === videos.length) {
+        return res.status(404).json({
+            error: `Video with id ${id} not found.`
+        });
+    }
+
+    writeVideos(filtered);
+
+    console.log('[API] Video deleted:', id);
+
+    res.json({
+        success: true,
+        deletedId: id
+    });
 });
 
-/* ──────────────────────────────────────────────────────────
-   CATCH-ALL — SPA fallback
-   Serves index.html for any route not matched above so
-   that direct URL navigation works correctly.
-────────────────────────────────────────────────────────── */
-app.get('*', (req, res) => {
-  // Only send index.html for non-API, non-file requests
-  const filePath = path.join(__dirname, req.path);
-  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-    return res.sendFile(filePath);
-  }
-  res.sendFile(path.join(__dirname, 'index.html'));
+// ============================================================
+// API NOT FOUND
+// ============================================================
+
+app.use('/api', (req, res) => {
+    res.status(404).json({
+        error: 'API route not found.'
+    });
 });
 
-/* ──────────────────────────────────────────────────────────
-   START SERVER
-────────────────────────────────────────────────────────── */
-app.listen(PORT, () => {
-  console.log('');
-  console.log('╔══════════════════════════════════════════════════╗');
-  console.log('║   KL Video Streaming Platform — Server Running   ║');
-  console.log('╠══════════════════════════════════════════════════╣');
-  console.log(`║   URL    :  http://localhost:${PORT}                  ║`);
-  console.log(`║   Admin  :  http://localhost:${PORT}/pages/admin/login.html ║`);
-  console.log(`║   API    :  http://localhost:${PORT}/api/videos        ║`);
-  console.log('╚══════════════════════════════════════════════════╝');
-  console.log('');
+// ============================================================
+// HOME PAGE
+// Static middleware serves existing HTML pages.
+// ============================================================
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
+
+// ============================================================
+// ERROR HANDLER
+// ============================================================
+
+app.use((err, req, res, next) => {
+    console.error(err);
+
+    res.status(500).json({
+        error: 'Internal server error.'
+    });
+});
+
+// ============================================================
+// EXPORT FOR VERCEL
+// ============================================================
+
+module.exports = app;
+
+// ============================================================
+// LOCALHOST SERVER
+// ============================================================
+
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log('');
+        console.log('==========================================');
+        console.log(' KL Video Streaming Platform');
+        console.log(' Server Running Successfully!');
+        console.log('==========================================');
+        console.log(` Website : http://localhost:${PORT}`);
+        console.log(` Admin   : http://localhost:${PORT}/pages/admin/login.html`);
+        console.log(` API     : http://localhost:${PORT}/api/videos`);
+        console.log('==========================================');
+        console.log('');
+    });
+}

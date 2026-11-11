@@ -40,5 +40,19 @@
     "videoUrl": "/assets/videos/jailer2.mp4",
     "featured": false,
     "views": "0"
+  },
+  {
+    "id": 5,
+    "title": "Explaining an Electrical Circuit",
+    "description": "Description:\n\nLearn the basics of electric circuits, including electrical components, voltage, current, resistance, and how circuits work. This educational video helps students understand fundamental electrical concepts and their practical applications.",
+    "category": "Technology",
+    "duration": "2:26",
+    "durationSeconds": 0,
+    "year": 2026,
+    "rating": 9.8,
+    "thumbnail": "/assets/thumbnails/electric-circuit.png",
+    "videoUrl": "/assets/videos/videoplayback.mp4",
+    "featured": false,
+    "views": "0"
   }
 ]

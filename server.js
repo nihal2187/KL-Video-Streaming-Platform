@@ -22,6 +22,14 @@ const VIDEOS_FILE = path.join(__dirname, 'data', 'videos.json');
 
 app.use(express.json());
 
+// Make the stylesheet available from the site root on Vercel as well as locally.
+// The explicit route also ensures the response is served as CSS by Express.
+app.get('/style.css', (req, res, next) => {
+    res.sendFile(path.join(PUBLIC_DIR, 'style.css'), error => {
+        if (error) next(error);
+    });
+});
+
 // Serve frontend files from public folder
 app.use(express.static(PUBLIC_DIR));
 

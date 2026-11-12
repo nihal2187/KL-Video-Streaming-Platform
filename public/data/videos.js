@@ -41,12 +41,11 @@ const KL_CATEGORIES = [
    http://localhost:…) or directly from the filesystem.
 ────────────────────────────────────────────────────────── */
 const klVideoAPI = (() => {
-  // Are we being served by Express?
+  // The same-origin API is available both locally and on Vercel.
   const isExpressServed = (
     typeof window !== 'undefined' &&
-    window.location.protocol === 'http:' &&
-    (window.location.hostname === 'localhost' ||
-     window.location.hostname === '127.0.0.1')
+    (window.location.protocol === 'http:' ||
+     window.location.protocol === 'https:')
   );
 
   /** Base URL for the API — empty string when served from root */
